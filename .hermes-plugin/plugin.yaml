@@ -1,0 +1,4 @@
+name: gh-resolve
+version: 0.1.0
+description: Skills for recovering a blocked GitHub PR - red CI, rebase conflicts, out-of-date base
+author: dEitY719

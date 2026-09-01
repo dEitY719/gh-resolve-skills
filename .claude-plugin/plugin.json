@@ -1,0 +1,21 @@
+{
+  "name": "gh-resolve",
+  "description": "Recover a blocked GitHub PR. Three skills, one per blocker GitHub greys the merge button for: red required checks, a branch with conflicts, and a head that is behind its base.",
+  "version": "0.1.0",
+  "author": {
+    "name": "dEitY719",
+    "url": "https://github.com/dEitY719"
+  },
+  "homepage": "https://github.com/dEitY719/gh-resolve-skills",
+  "repository": "https://github.com/dEitY719/gh-resolve-skills",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "plugin",
+    "marketplace",
+    "github",
+    "pull-request",
+    "rebase",
+    "ci"
+  ]
+}

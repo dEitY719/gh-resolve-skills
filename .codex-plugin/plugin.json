@@ -1,0 +1,42 @@
+{
+  "name": "gh-resolve",
+  "version": "0.1.0",
+  "description": "Recover a blocked GitHub PR: red required checks, a branch with conflicts, or a head behind its base.",
+  "author": {
+    "name": "dEitY719",
+    "url": "https://github.com/dEitY719"
+  },
+  "homepage": "https://github.com/dEitY719/gh-resolve-skills",
+  "repository": "https://github.com/dEitY719/gh-resolve-skills",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "plugin",
+    "marketplace",
+    "github",
+    "pull-request",
+    "rebase",
+    "ci"
+  ],
+  "skills": "./skills/",
+  "hooks": {},
+  "interface": {
+    "displayName": "GH Resolve",
+    "shortDescription": "Unblock a stuck GitHub pull request",
+    "longDescription": "gh-resolve owns one axis of the PR lifecycle: getting a blocked pull request back to mergeable. GitHub greys the merge button for three reasons, and this plugin has one skill per reason. ci-fail reads the failing required checks' logs, finds the root cause, fixes it locally, re-runs the same command CI ran, and only then fast-forward pushes and removes the CI fail label - it never blind-retries a job and never pushes while local checks are red. conflict rebases the head onto its base, walks each conflicting file with the user rather than guessing, and pushes with --force-with-lease. outdated handles the easy case: the base moved but nothing conflicts, so it clean-rebases, force-with-lease pushes, and hands off to conflict the moment a conflict appears. Two of the three rewrite published history, so their guard rails - no plain --force, no silent re-rebase after a rejected lease, no run on the default branch - are part of the skills, not advice.",
+    "developerName": "dEitY719",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "This PR's CI is red - find out why and fix it.",
+      "PR 1402 has conflicts. Rebase it onto main."
+    ],
+    "websiteURL": "https://github.com/dEitY719/gh-resolve-skills",
+    "brandColor": "#1F6FEB",
+    "screenshots": []
+  }
+}

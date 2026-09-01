@@ -1,0 +1,6 @@
+{
+  "name": "gh-resolve",
+  "description": "Recover a blocked GitHub PR: red CI, rebase conflicts, or an out-of-date base",
+  "version": "0.1.0",
+  "contextFileName": "GEMINI.md"
+}

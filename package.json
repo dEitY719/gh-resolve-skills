@@ -1,0 +1,21 @@
+{
+  "name": "gh-resolve-skills",
+  "version": "0.1.0",
+  "description": "Skills for PR blocked-state recovery — red CI, rebase conflicts, and an out-of-date base",
+  "type": "module",
+  "main": ".opencode/plugins/gh-resolve.js",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dEitY719/gh-resolve-skills.git"
+  },
+  "keywords": [
+    "skills",
+    "plugin",
+    "marketplace",
+    "github",
+    "pull-request",
+    "rebase",
+    "ci"
+  ]
+}
