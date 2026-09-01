@@ -1,4 +1,5 @@
 {
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "gh-resolve-skills",
   "description": "PR blocked-state recovery skills — get a stuck GitHub pull request back to mergeable after red CI, a rebase conflict, or an out-of-date base",
   "owner": {
@@ -11,6 +12,7 @@
       "description": "Recover a blocked GitHub PR. Three skills, one per blocker GitHub greys the merge button for: red required checks, a branch with conflicts, and a head that is behind its base.",
       "version": "0.1.0",
       "source": "./",
+      "homepage": "https://github.com/dEitY719/gh-resolve-skills",
       "author": {
         "name": "dEitY719",
         "url": "https://github.com/dEitY719"

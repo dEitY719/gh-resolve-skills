@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ko" class="theme-dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>gh-resolve:conflict — visual guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root { interpolate-size: allow-keywords; }
+
+html.theme-dark {
+  --bg: #0A0A0A; --surface: #141414; --surface-hover: #1C1C1C;
+  --border: rgba(255,255,255,0.08);
+  --text: #EDEDED; --text-secondary: #8b8b8b;
+  --accent: #3b82f6; --accent-secondary: #8b5cf6;
+  --positive: #10b981; --negative: #f43f5e; --warning: #f59e0b;
+  --code-bg: #0f0f0f; --hl: var(--negative);
+}
+html.theme-light {
+  --bg: #FAFAF9; --surface: #FFFFFF; --surface-hover: #F5F5F4;
+  --border: rgba(0,0,0,0.09);
+  --text: #0f172a; --text-secondary: #64748b;
+  --accent: #2563eb; --accent-secondary: #7c3aed;
+  --positive: #059669; --negative: #e11d48; --warning: #d97706;
+  --code-bg: #f4f4f5; --hl: var(--negative);
+}
+
+body {
+  font-family: 'Inter', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg); color: var(--text);
+  line-height: 1.7; -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.01em; transition: background 0.3s, color 0.3s;
+  scrollbar-gutter: stable;
+}
+h1,h2,h3,h4 { color: var(--text); letter-spacing: -0.03em; line-height: 1.15; text-wrap: balance; }
+h1 { font-weight: 800; font-size: clamp(2.4rem, 6vw, 3.4rem); }
+h2 { font-weight: 700; font-size: clamp(1.6rem, 3.6vw, 2.1rem); }
+h3 { font-weight: 600; font-size: 1.55rem; }
+p, li, td, th, span, label { color: var(--text); font-size: 1rem; }
+code, pre, .mono { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace; }
+.text-secondary { color: var(--text-secondary); }
+
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+section { padding: 56px 0; border-top: 1px solid var(--border); }
+section:first-of-type { border-top: none; }
+
+/* HEADER */
+.hero { padding: 88px 0 56px; }
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 9px;
+  font-size: 0.76rem; font-weight: 700; letter-spacing: 0.13em;
+  text-transform: uppercase; color: var(--hl);
+  border: 1px solid var(--border); background: var(--surface);
+  border-radius: 999px; padding: 7px 15px; margin-bottom: 26px;
+}
+.eyebrow .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--hl); }
+.hero h1 .ns { color: var(--text-secondary); font-weight: 500; }
+.lede {
+  font-size: clamp(1.06rem, 2.1vw, 1.24rem); color: var(--text-secondary);
+  max-width: 68ch; margin-top: 22px; line-height: 1.72;
+}
+.lede strong { color: var(--text); font-weight: 650; }
+
+/* CARD */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 24px;
+  transition: box-shadow 0.2s ease;
+}
+.card:hover { box-shadow: 0 0 0 1px var(--border), 0 8px 20px rgba(0,0,0,0.10); }
+
+.grid { display: grid; gap: 16px; }
+@media (min-width: 720px) { .grid-3 { grid-template-columns: repeat(3, 1fr); } }
+
+/* ROUTING */
+.route { border-left: 3px solid var(--border); }
+.route.is-this { border-left-color: var(--hl); }
+.route h4 { font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-secondary); font-weight: 700; margin-bottom: 10px; }
+.route p { font-size: 0.97rem; margin-bottom: 14px; }
+.route .who { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; font-weight: 600; color: var(--accent); }
+.route.is-this .who { color: var(--hl); }
+.route .badge {
+  display: inline-block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.09em;
+  text-transform: uppercase; padding: 3px 8px; border-radius: 5px; margin-left: 8px;
+  background: color-mix(in srgb, var(--hl) 18%, transparent); color: var(--hl);
+}
+
+/* TABLE */
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 540px; }
+th, td { text-align: left; padding: 13px 18px; border-bottom: 1px solid var(--border); vertical-align: top; font-size: 0.95rem; }
+th { font-size: 0.74rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-secondary); font-weight: 700; }
+tr:last-child td { border-bottom: none; }
+td code, th code { font-size: 0.87rem; background: var(--code-bg); padding: 2px 6px; border-radius: 5px; }
+
+/* CODE */
+pre {
+  background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px;
+  padding: 18px 20px; overflow-x: auto; font-size: 0.92rem; line-height: 1.75;
+}
+pre .c { color: var(--text-secondary); }
+pre .k { color: var(--warning); font-weight: 600; }
+
+/* STEPS */
+.steps { display: grid; gap: 12px; counter-reset: st; }
+.step { display: grid; grid-template-columns: 44px 1fr; gap: 18px; align-items: start; }
+.step-n {
+  width: 44px; height: 44px; border-radius: 11px; display: grid; place-items: center;
+  background: var(--surface); border: 1px solid var(--border);
+  font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 1rem; color: var(--text-secondary);
+}
+.step.hl .step-n { background: color-mix(in srgb, var(--hl) 16%, var(--surface)); border-color: color-mix(in srgb, var(--hl) 40%, var(--border)); color: var(--hl); }
+.step-body { padding-bottom: 6px; }
+.step-body h4 { font-size: 1.02rem; font-weight: 650; margin-bottom: 5px; }
+.step-body p { font-size: 0.93rem; color: var(--text-secondary); }
+.stop {
+  display: inline-block; margin-top: 8px; font-size: 0.84rem;
+  border-left: 2px solid var(--negative); padding-left: 11px; color: var(--text-secondary);
+}
+.stop b { color: var(--negative); font-weight: 650; }
+
+/* CONSTRAINTS */
+.rules { display: grid; gap: 12px; }
+.rule {
+  display: grid; grid-template-columns: 26px 1fr; gap: 14px; align-items: start;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 17px 19px;
+}
+.rule svg { margin-top: 3px; color: var(--negative); flex-shrink: 0; }
+.rule.ok svg { color: var(--positive); }
+.rule p { font-size: 0.95rem; }
+.rule b { font-weight: 700; }
+
+/* MENU */
+.viz-menu { position: fixed; top: 16px; right: 16px; z-index: 9999; }
+.viz-menu-toggle {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text); cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(12px); transition: all 0.2s;
+}
+.viz-menu-toggle:hover { background: var(--surface-hover); }
+.viz-menu-dropdown {
+  position: absolute; top: 52px; right: 0; min-width: 208px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 8px;
+  opacity: 0; visibility: hidden; transform: translateY(-8px);
+  transition: all 0.2s; backdrop-filter: blur(16px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+}
+.viz-menu-dropdown.open { opacity: 1; visibility: visible; transform: translateY(0); }
+.viz-menu-dropdown button {
+  width: 100%; padding: 10px 14px; border: none; border-radius: 8px;
+  background: transparent; color: var(--text); font-size: 0.9rem;
+  font-family: inherit; cursor: pointer; text-align: left;
+  display: flex; align-items: center; gap: 11px; transition: background 0.15s;
+}
+.viz-menu-dropdown button:hover { background: var(--surface-hover); }
+
+/* ANIMATION */
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+.animate { animation: fadeInUp 0.6s ease-out both; }
+.animate.delay-1 { animation-delay: 0.08s; }
+.animate.delay-2 { animation-delay: 0.16s; }
+.animate.delay-3 { animation-delay: 0.24s; }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .reveal { opacity: 1; transform: none; }
+}
+
+footer { padding: 44px 0 64px; border-top: 1px solid var(--border); }
+footer p { font-size: 0.88rem; color: var(--text-secondary); }
+footer a { color: var(--accent); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+
+@media print {
+  body { background: white !important; color: black !important; }
+  .viz-menu { display: none !important; }
+  .reveal { opacity: 1 !important; transform: none !important; }
+  .card, .rule { break-inside: avoid; border: 1px solid #ddd; box-shadow: none; }
+  * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+}
+@page { margin: 1in; }
+</style>
+</head>
+<body>
+<a href="#main-content" class="skip-link" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;z-index:10000;padding:8px 16px;background:var(--accent);color:white;text-decoration:none;border-radius:4px;" onfocus="this.style.cssText='position:fixed;left:16px;top:16px;z-index:10000;padding:8px 16px;background:var(--accent);color:white;text-decoration:none;border-radius:4px;'" onblur="this.style.cssText='position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;'">Skip to content</a>
+
+<div class="viz-menu">
+  <button class="viz-menu-toggle" onclick="toggleMenu()" aria-label="메뉴 열기" aria-haspopup="true">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+      <line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="10" x2="17" y2="10"/><line x1="3" y1="15" x2="17" y2="15"/>
+    </svg>
+  </button>
+  <div class="viz-menu-dropdown" id="vizMenuDropdown">
+    <button onclick="cycleTheme()" aria-label="테마 전환">
+      <span id="themeIcon" aria-hidden="true"></span><span id="themeLabel">Dark</span>
+    </button>
+    <button onclick="downloadImage()" aria-label="PNG 내려받기">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v8"/><path d="M4.5 7.5L8 11l3.5-3.5"/><path d="M2.5 13h11"/></svg>
+      <span>Download PNG</span>
+    </button>
+    <button onclick="window.print()" aria-label="인쇄 또는 PDF 저장">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6V2.5h7V6"/><rect x="2.5" y="6" width="11" height="5" rx="1.2"/><path d="M4.5 10h7v3.5h-7z"/></svg>
+      <span>Print / PDF</span>
+    </button>
+  </div>
+</div>
+
+<main id="main-content" role="main">
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow animate"><span class="dot"></span>Blocker 2 of 3 — Branch has conflicts</div>
+    <h1 class="animate delay-1"><span class="ns">/gh-resolve:</span>conflict</h1>
+    <p class="lede animate delay-2">
+      "This branch has conflicts that must be resolved" 경고가 붙은 PR 을 base 위로 rebase 하면서
+      충돌 파일마다 사용자의 의도를 물어 해소하고, <code>--force-with-lease</code> 로 push 해
+      <strong>경고가 사라진 mergeable 상태의 PR</strong> 을 남긴다.
+    </p>
+  </div>
+</header>
+
+<section data-reveal>
+  <div class="wrap">
+    <h2>언제 쓰나</h2>
+    <p class="text-secondary" style="margin:14px 0 26px;max-width:66ch;">
+      <code>mergeable</code> 이 <code>CONFLICTING</code> 일 때가 이 스킬의 자리다.
+      GitHub 이 무엇을 문제 삼고 있는지로 고르는 것이지, 내가 무엇을 고치고 싶은지로 고르는 것이 아니다.
+    </p>
+    <div class="grid grid-3">
+      <article class="card route is-this">
+        <h4>Blocker</h4>
+        <p>"branch has conflicts that must be resolved"</p>
+        <span class="who">conflict</span><span class="badge">이 스킬</span>
+      </article>
+      <article class="card route">
+        <h4>Blocker</h4>
+        <p>base 만 뒤처졌고 충돌 파일은 없다</p>
+        <span class="who">gh-resolve:outdated</span>
+      </article>
+      <article class="card route">
+        <h4>Blocker</h4>
+        <p>required check 가 빨갛다</p>
+        <span class="who">gh-resolve:ci-fail</span>
+      </article>
+    </div>
+
+    <h3 style="margin-top:44px;font-size:1.15rem;">쓰지 않는 경우</h3>
+    <div class="rules" style="margin-top:16px;">
+      <div class="rule">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="7"/><path d="M4.5 4.5l9 9"/></svg>
+        <p><b>충돌이 없는 단순 base 뒤처짐.</b> <code>outdated</code> 가 더 싸고 멱등하다.</p>
+      </div>
+      <div class="rule">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="7"/><path d="M4.5 4.5l9 9"/></svg>
+        <p><b>CI 로그를 읽어야 할 때.</b> 이 스킬은 CI 로그를 읽지 않는다.</p>
+      </div>
+      <div class="rule">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="7"/><path d="M4.5 4.5l9 9"/></svg>
+        <p><b>애매한 hunk 를 알아서 처리해 주길 바랄 때.</b> 이 스킬은 추측하지 않는다. 물어보고, 진짜 답을 기다린다.</p>
+      </div>
+      <div class="rule">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="7"/><path d="M4.5 4.5l9 9"/></svg>
+        <p><b>default branch 위에 있을 때.</b> default branch 를 rebase 하지 않는다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-reveal>
+  <div class="wrap">
+    <h2>호출 형식</h2>
+    <pre style="margin:22px 0 26px;"><span class="k">/gh-resolve:conflict</span> [pr-number] [remote] [--worktree &lt;path&gt;]</pre>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>인자 / 옵션</th><th>기본값</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td><code>pr-number</code></td><td>현재 브랜치에서 자동 탐지</td><td><code>--worktree</code> 를 쓰면 <strong>필수</strong>가 된다 — detached HEAD 에는 탐지할 브랜치가 없다</td></tr>
+          <tr><td><code>remote</code></td><td><code>origin</code></td><td>이 remote 의 URL 에서 <code>TARGET_HOST</code> + <code>TARGET_REPO</code> 를 바인딩한다</td></tr>
+          <tr><td><code>--worktree &lt;path&gt;</code></td><td>없음</td><td>모든 git 명령이 <code>git -C "&lt;path&gt;"</code> 가 되고 push 는 명시적 refspec 을 쓴다. 경로의 생명주기는 호출자 <code>gh:pr-merge-train</code> 이 소유한다</td></tr>
+          <tr><td><code>-h</code> / <code>--help</code></td><td>—</td><td><code>references/help.md</code> 를 그대로 출력하고 종료. API 호출 없음</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section data-reveal>
+  <div class="wrap">
+    <h2>동작 단계</h2>
+    <p class="text-secondary" style="margin:14px 0 30px;max-width:66ch;">
+      강조된 두 단계가 이 스킬에서 가장 위험한 지점이다 — 사용자에게 묻는 곳, 그리고 published history 를 다시 쓰는 곳.
+    </p>
+    <div class="steps">
+      <div class="step"><div class="step-n">1</div><div class="step-body">
+        <h4>인자 파싱 + preflight</h4>
+        <p>호스트 바인딩, <strong>mergeable preflight</strong>, 하드 프리컨디션 검사, <code>BACKUP_SHA</code> 출력</p>
+        <span class="stop"><b>중단</b> — 이미 <code>MERGEABLE</code> 이면 스킵 · default branch · 진행 중인 rebase/merge/cherry-pick</span>
+      </div></div>
+      <div class="step"><div class="step-n">2</div><div class="step-body">
+        <h4>fetch + rebase</h4>
+        <p><code>git fetch &lt;remote&gt; &lt;base&gt;</code> 후 <code>git rebase &lt;remote&gt;/&lt;base&gt;</code></p>
+      </div></div>
+      <div class="step hl"><div class="step-n">3</div><div class="step-body">
+        <h4>충돌 해소 루프</h4>
+        <p>커밋 단위 반복: <code>UU</code>/<code>AA</code>/<code>DU</code> 경로 나열 → 파일마다 의도 확인 → <code>git add</code> → <code>git rebase --continue</code></p>
+        <span class="stop"><b>정지</b> — 애매한 충돌은 자동 해소하지 않고 <b>질문한다</b>. 세션의 auto-approve 설정은 사용자의 답이 아니다</span>
+      </div></div>
+      <div class="step hl"><div class="step-n">4</div><div class="step-body">
+        <h4>--force-with-lease push</h4>
+        <p>rebase 가 0 으로 끝나고 트리가 깨끗할 때만 실행. plain <code>--force</code> 는 절대 쓰지 않는다</p>
+        <span class="stop"><b>중단</b> — lease 거부 시 upstream 을 노출하고 정지. 재fetch·재rebase 를 대신 하지 않는다</span>
+      </div></div>
+      <div class="step"><div class="step-n">5</div><div class="step-body">
+        <h4>mergeable 검증 + 후처리</h4>
+        <p><code>conflict</code> 라벨 제거 · 보드 카드 <code>In review</code> 복귀 · ai-metrics 코멘트 · 낡은 <code>review-passed</code> 제거 (각각 soft-fail)</p>
+        <span class="stop">여전히 <code>CONFLICTING</code>/<code>BEHIND</code> 면 URL 과 갈라진 쪽을 출력하고 루프하지 않는다</span>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<section data-reveal>
+  <div class="wrap">
+    <h2>주의사항 / 제약</h2>
+    <p class="text-secondary" style="margin:14px 0 26px;max-width:66ch;">
+      권고가 아니라 인수 조건이다. 이 스킬은 published history 를 다시 쓰므로 제약 하나하나가 곧 안전장치다.
+    </p>
+    <div class="rules">
+      <div class="rule">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="7"/><path d="M4.5 4.5l9 9"/></svg>
+        <p><b>merge commit 을 절대 만들지 않는다.</b> rebase 전용이다.</p>
+      </div>
+      <div class="rule">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="7"/><path d="M4.5 4.5l9 9"/></svg>
+        <p><b>plain <code>git push --force</code> 를 절대 쓰지 않는다.</b> <code>--force-with-lease</code> 아니면 중단이다.</p>
+      </div>
+      <div class="rule">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="7"/><path d="M4.5 4.5l9 9"/></svg>
+        <p><b>거부된 lease 를 대신 재시도하지 않는다.</b> lease 거부는 내가 rebase 하는 동안 누군가 push 했다는 뜻이다. 갈라진 지점을 보여주고 사용자가 결정하게 한다 — 대신 fetch 해서 다시 rebase 하는 순간 동료의 커밋이 사라진다.</p>
+      </div>
+      <div class="rule">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="7"/><path d="M4.5 4.5l9 9"/></svg>
+        <p><b>애매한 충돌을 자동 해소하지 않는다.</b> 물어보고 진짜 답을 받는다.</p>
+      </div>
+      <div class="rule ok">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 9.5l3.5 3.5 7.5-8"/></svg>
+        <p>Step 5 를 건너뛰지 않는다 — PR 경고를 걷어내는 것이 이 스킬의 존재 이유다.</p>
+      </div>
+      <div class="rule ok">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 9.5l3.5 3.5 7.5-8"/></svg>
+        <p>push 가 성공하면 리뷰받은 커밋은 더 이상 head 가 아니므로 낡은 <code>review-passed</code> 제거는 <b>필수</b>다. 반대로 <code>review-blocked</code> 는 추가도 제거도 하지 않는다 <span class="text-secondary">(#1563)</span>.</p>
+      </div>
+      <div class="rule">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="7"/><path d="M4.5 4.5l9 9"/></svg>
+        <p><code>--worktree</code> 경로를 만들지도 지우지도 않는다. 호출자가 소유한다. 그리고 히스토리를 건드리기 전에 항상 <code>BACKUP_SHA</code> 를 출력한다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>
+      <code>gh-resolve-skills</code> · 형제 스킬:
+      <a href="ci-fail.html">ci-fail</a> ·
+      <a href="outdated.html">outdated</a> ·
+      실행 기록: <a href="../skill-output/conflict-usage.html">conflict usage</a>
+    </p>
+  </div>
+</footer>
+</main>
+
+<script>
+function toggleMenu() {
+  var d = document.getElementById('vizMenuDropdown');
+  if (d) d.classList.toggle('open');
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.viz-menu')) {
+    var d = document.getElementById('vizMenuDropdown');
+    if (d) d.classList.remove('open');
+  }
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    var d = document.getElementById('vizMenuDropdown');
+    if (d) d.classList.remove('open');
+  }
+});
+
+var ICON_MOON = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 9.6A5.8 5.8 0 016.4 2.5a5.8 5.8 0 107.1 7.1z"/></svg>';
+var ICON_SUN = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="3.1"/><path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15M3.1 3.1l1.1 1.1M11.8 11.8l1.1 1.1M12.9 3.1l-1.1 1.1M4.2 11.8l-1.1 1.1"/></svg>';
+
+var savedTheme = localStorage.getItem('viz-theme');
+var currentTheme = savedTheme || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+function applyTheme(t) {
+  document.documentElement.className = 'theme-' + t;
+  document.getElementById('themeIcon').innerHTML = t === 'dark' ? ICON_MOON : ICON_SUN;
+  document.getElementById('themeLabel').textContent = t === 'dark' ? 'Dark' : 'Light';
+  localStorage.setItem('viz-theme', t);
+  currentTheme = t;
+}
+function cycleTheme() { applyTheme(currentTheme === 'dark' ? 'light' : 'dark'); }
+applyTheme(currentTheme);
+
+document.querySelectorAll('[data-reveal]').forEach(function(el) { el.classList.add('reveal'); });
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) {
+    if (e.isIntersecting) { e.target.classList.add('visible'); revealObserver.unobserve(e.target); }
+  });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+async function downloadImage() {
+  var menu = document.querySelector('.viz-menu');
+  menu.style.display = 'none';
+  try {
+    var url = await htmlToImage.toPng(document.body, { quality: 1, pixelRatio: 2, backgroundColor: getComputedStyle(document.body).backgroundColor });
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'gh-resolve-conflict-guide.png';
+    a.click();
+  } catch (err) { console.error('Download failed:', err); }
+  menu.style.display = '';
+}
+</script>
+</body>
+</html>

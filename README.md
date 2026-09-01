@@ -28,6 +28,15 @@ Adjacent verbs live elsewhere: creating a PR (`gh:pr`), merging one
 comments (`gh:pr-reply`) are all in other repos of this family. This repo starts
 when a PR is blocked and stops when it is mergeable again.
 
+### Visual guides and worked examples (GitHub Pages)
+
+- `ci-fail` — [visual guide](https://deity719.github.io/gh-resolve-skills/skill-guides/ci-fail.html) · [usage example](https://deity719.github.io/gh-resolve-skills/skill-output/ci-fail-usage.html) (red required checks to a green, pushed PR)
+- `conflict` — [visual guide](https://deity719.github.io/gh-resolve-skills/skill-guides/conflict.html) · [usage example](https://deity719.github.io/gh-resolve-skills/skill-output/conflict-usage.html) (a conflicting branch to a rebased, mergeable PR)
+- `outdated` — [visual guide](https://deity719.github.io/gh-resolve-skills/skill-guides/outdated.html) · [usage example](https://deity719.github.io/gh-resolve-skills/skill-output/outdated-usage.html) (an out-of-date head to a base-synced PR)
+
+Each page is generated from a Markdown source under
+[`docs/skill-guides/`](docs/skill-guides) and [`docs/skill-output/`](docs/skill-output).
+
 ## Requirements
 
 | Need | Why |
