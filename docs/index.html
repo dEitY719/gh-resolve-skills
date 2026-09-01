@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ko" class="theme-dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>gh-resolve — 막힌 PR 복구 스킬</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root { interpolate-size: allow-keywords; }
+
+html.theme-dark {
+  --bg: #0A0A0A; --surface: #141414; --surface-hover: #1C1C1C;
+  --border: rgba(255,255,255,0.08);
+  --text: #EDEDED; --text-secondary: #8b8b8b;
+  --accent: #3b82f6; --accent-secondary: #8b5cf6;
+  --positive: #10b981; --negative: #f43f5e; --warning: #f59e0b;
+  --code-bg: #0f0f0f; --hl: var(--accent-secondary);
+}
+html.theme-light {
+  --bg: #FAFAF9; --surface: #FFFFFF; --surface-hover: #F5F5F4;
+  --border: rgba(0,0,0,0.09);
+  --text: #0f172a; --text-secondary: #64748b;
+  --accent: #2563eb; --accent-secondary: #7c3aed;
+  --positive: #059669; --negative: #e11d48; --warning: #d97706;
+  --code-bg: #f4f4f5; --hl: var(--accent-secondary);
+}
+
+body {
+  font-family: 'Inter', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg); color: var(--text);
+  line-height: 1.7; -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.01em; transition: background 0.3s, color 0.3s;
+  scrollbar-gutter: stable;
+}
+h1,h2,h3,h4 { color: var(--text); letter-spacing: -0.03em; line-height: 1.15; text-wrap: balance; }
+h1 { font-weight: 800; font-size: clamp(2.4rem, 6vw, 3.4rem); }
+h2 { font-weight: 700; font-size: clamp(1.6rem, 3.6vw, 2.1rem); }
+h3 { font-weight: 600; font-size: 1.55rem; }
+p, li, td, th, span, label { color: var(--text); font-size: 1rem; }
+code, pre, .mono { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace; }
+.text-secondary { color: var(--text-secondary); }
+
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+section { padding: 56px 0; border-top: 1px solid var(--border); }
+section:first-of-type { border-top: none; }
+
+/* HEADER */
+.hero { padding: 88px 0 56px; }
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 9px;
+  font-size: 0.76rem; font-weight: 700; letter-spacing: 0.13em;
+  text-transform: uppercase; color: var(--hl);
+  border: 1px solid var(--border); background: var(--surface);
+  border-radius: 999px; padding: 7px 15px; margin-bottom: 26px;
+}
+.eyebrow .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--hl); }
+.hero h1 .ns { color: var(--text-secondary); font-weight: 500; }
+.lede {
+  font-size: clamp(1.06rem, 2.1vw, 1.24rem); color: var(--text-secondary);
+  max-width: 68ch; margin-top: 22px; line-height: 1.72;
+}
+.lede strong { color: var(--text); font-weight: 650; }
+
+/* CARD */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 24px;
+  transition: box-shadow 0.2s ease;
+}
+.card:hover { box-shadow: 0 0 0 1px var(--border), 0 8px 20px rgba(0,0,0,0.10); }
+
+.grid { display: grid; gap: 16px; }
+@media (min-width: 720px) { .grid-3 { grid-template-columns: repeat(3, 1fr); } }
+
+/* ROUTING */
+.route { border-left: 3px solid var(--border); }
+.route.is-this { border-left-color: var(--hl); }
+.route h4 { font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-secondary); font-weight: 700; margin-bottom: 10px; }
+.route p { font-size: 0.97rem; margin-bottom: 14px; }
+.route .who { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; font-weight: 600; color: var(--accent); }
+.route.is-this .who { color: var(--hl); }
+.route .badge {
+  display: inline-block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.09em;
+  text-transform: uppercase; padding: 3px 8px; border-radius: 5px; margin-left: 8px;
+  background: color-mix(in srgb, var(--hl) 18%, transparent); color: var(--hl);
+}
+
+/* TABLE */
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 540px; }
+th, td { text-align: left; padding: 13px 18px; border-bottom: 1px solid var(--border); vertical-align: top; font-size: 0.95rem; }
+th { font-size: 0.74rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-secondary); font-weight: 700; }
+tr:last-child td { border-bottom: none; }
+td code, th code { font-size: 0.87rem; background: var(--code-bg); padding: 2px 6px; border-radius: 5px; }
+
+/* CODE */
+pre {
+  background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px;
+  padding: 18px 20px; overflow-x: auto; font-size: 0.92rem; line-height: 1.75;
+}
+pre .c { color: var(--text-secondary); }
+pre .k { color: var(--warning); font-weight: 600; }
+
+/* STEPS */
+.steps { display: grid; gap: 12px; counter-reset: st; }
+.step { display: grid; grid-template-columns: 44px 1fr; gap: 18px; align-items: start; }
+.step-n {
+  width: 44px; height: 44px; border-radius: 11px; display: grid; place-items: center;
+  background: var(--surface); border: 1px solid var(--border);
+  font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 1rem; color: var(--text-secondary);
+}
+.step.hl .step-n { background: color-mix(in srgb, var(--hl) 16%, var(--surface)); border-color: color-mix(in srgb, var(--hl) 40%, var(--border)); color: var(--hl); }
+.step-body { padding-bottom: 6px; }
+.step-body h4 { font-size: 1.02rem; font-weight: 650; margin-bottom: 5px; }
+.step-body p { font-size: 0.93rem; color: var(--text-secondary); }
+.stop {
+  display: inline-block; margin-top: 8px; font-size: 0.84rem;
+  border-left: 2px solid var(--negative); padding-left: 11px; color: var(--text-secondary);
+}
+.stop b { color: var(--negative); font-weight: 650; }
+
+/* CONSTRAINTS */
+.rules { display: grid; gap: 12px; }
+.rule {
+  display: grid; grid-template-columns: 26px 1fr; gap: 14px; align-items: start;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 17px 19px;
+}
+.rule svg { margin-top: 3px; color: var(--negative); flex-shrink: 0; }
+.rule.ok svg { color: var(--positive); }
+.rule p { font-size: 0.95rem; }
+.rule b { font-weight: 700; }
+
+/* MENU */
+.viz-menu { position: fixed; top: 16px; right: 16px; z-index: 9999; }
+.viz-menu-toggle {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text); cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(12px); transition: all 0.2s;
+}
+.viz-menu-toggle:hover { background: var(--surface-hover); }
+.viz-menu-dropdown {
+  position: absolute; top: 52px; right: 0; min-width: 208px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 8px;
+  opacity: 0; visibility: hidden; transform: translateY(-8px);
+  transition: all 0.2s; backdrop-filter: blur(16px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+}
+.viz-menu-dropdown.open { opacity: 1; visibility: visible; transform: translateY(0); }
+.viz-menu-dropdown button {
+  width: 100%; padding: 10px 14px; border: none; border-radius: 8px;
+  background: transparent; color: var(--text); font-size: 0.9rem;
+  font-family: inherit; cursor: pointer; text-align: left;
+  display: flex; align-items: center; gap: 11px; transition: background 0.15s;
+}
+.viz-menu-dropdown button:hover { background: var(--surface-hover); }
+
+/* ANIMATION */
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+.animate { animation: fadeInUp 0.6s ease-out both; }
+.animate.delay-1 { animation-delay: 0.08s; }
+.animate.delay-2 { animation-delay: 0.16s; }
+.animate.delay-3 { animation-delay: 0.24s; }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .reveal { opacity: 1; transform: none; }
+}
+
+footer { padding: 44px 0 64px; border-top: 1px solid var(--border); }
+footer p { font-size: 0.88rem; color: var(--text-secondary); }
+footer a { color: var(--accent); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+
+@media print {
+  body { background: white !important; color: black !important; }
+  .viz-menu { display: none !important; }
+  .reveal { opacity: 1 !important; transform: none !important; }
+  .card, .rule { break-inside: avoid; border: 1px solid #ddd; box-shadow: none; }
+  * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+}
+@page { margin: 1in; }
+</style>
+</head>
+<body>
+<a href="#main-content" class="skip-link" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;z-index:10000;padding:8px 16px;background:var(--accent);color:white;text-decoration:none;border-radius:4px;" onfocus="this.style.cssText='position:fixed;left:16px;top:16px;z-index:10000;padding:8px 16px;background:var(--accent);color:white;text-decoration:none;border-radius:4px;'" onblur="this.style.cssText='position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;'">Skip to content</a>
+
+<div class="viz-menu">
+  <button class="viz-menu-toggle" onclick="toggleMenu()" aria-label="메뉴 열기" aria-haspopup="true">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+      <line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="10" x2="17" y2="10"/><line x1="3" y1="15" x2="17" y2="15"/>
+    </svg>
+  </button>
+  <div class="viz-menu-dropdown" id="vizMenuDropdown">
+    <button onclick="cycleTheme()" aria-label="테마 전환">
+      <span id="themeIcon" aria-hidden="true"></span><span id="themeLabel">Dark</span>
+    </button>
+    <button onclick="downloadImage()" aria-label="PNG 내려받기">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v8"/><path d="M4.5 7.5L8 11l3.5-3.5"/><path d="M2.5 13h11"/></svg>
+      <span>Download PNG</span>
+    </button>
+    <button onclick="window.print()" aria-label="인쇄 또는 PDF 저장">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6V2.5h7V6"/><rect x="2.5" y="6" width="11" height="5" rx="1.2"/><path d="M4.5 10h7v3.5h-7z"/></svg>
+      <span>Print / PDF</span>
+    </button>
+  </div>
+</div>
+
+<main id="main-content" role="main">
+<style>
+/* ===== INDEX-PAGE ADDITIONS ===== */
+.hub { display: grid; gap: 16px; margin-top: 30px; }
+@media (min-width: 860px) { .hub { grid-template-columns: repeat(3, 1fr); } }
+.hub-card {
+  display: flex; flex-direction: column; gap: 14px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-top: 3px solid var(--tone); border-radius: 12px; padding: 24px 24px 22px;
+  transition: box-shadow 0.2s ease;
+}
+.hub-card:hover { box-shadow: 0 0 0 1px var(--border), 0 10px 24px rgba(0,0,0,0.11); }
+.hub-card .blocker {
+  font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase;
+  font-weight: 700; color: var(--tone);
+}
+.hub-card h3 {
+  font-family: 'JetBrains Mono', monospace; font-size: 1.32rem; font-weight: 700;
+  letter-spacing: -0.02em; line-height: 1.2;
+}
+.hub-card h3 .ns { color: var(--text-secondary); font-weight: 400; font-size: 0.86em; }
+.hub-card .what { font-size: 0.94rem; color: var(--text-secondary); flex: 1; line-height: 1.65; }
+.hub-card .what b { color: var(--text); font-weight: 650; }
+.hub-links { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 4px; }
+.hub-links a {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 0.85rem; font-weight: 600; text-decoration: none;
+  color: var(--text); background: var(--bg);
+  border: 1px solid var(--border); border-radius: 8px; padding: 8px 13px;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.hub-links a:hover { border-color: var(--tone); color: var(--tone); background: var(--surface-hover); }
+.hub-links a svg { flex-shrink: 0; }
+
+.tone-warn { --tone: var(--warning); }
+.tone-neg  { --tone: var(--negative); }
+.tone-acc  { --tone: var(--accent); }
+
+.how { display: grid; gap: 14px; margin-top: 24px; }
+@media (min-width: 720px) { .how { grid-template-columns: repeat(2, 1fr); } }
+.how-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 19px 21px;
+}
+.how-item h4 { font-size: 0.98rem; font-weight: 650; margin-bottom: 7px; }
+.how-item p { font-size: 0.92rem; color: var(--text-secondary); }
+.how-item code { font-size: 0.85rem; background: var(--code-bg); padding: 2px 6px; border-radius: 5px; }
+</style>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow animate"><span class="dot"></span>gh-resolve-skills</div>
+    <h1 class="animate delay-1">막힌 PR 을<br>다시 머지 가능하게</h1>
+    <p class="lede animate delay-2">
+      GitHub 이 머지 버튼을 회색으로 만드는 이유는 셋이고, 이 플러그인에는 이유마다 스킬이 하나씩 있다.
+      <strong>GitHub 이 무엇을 문제 삼고 있는지</strong>로 고르는 것이지, 내가 무엇을 고치고 싶은지로 고르는 것이 아니다.
+    </p>
+  </div>
+</header>
+
+<section data-reveal>
+  <div class="wrap">
+    <h2>세 가지 blocker</h2>
+    <div class="hub">
+
+      <article class="hub-card tone-warn">
+        <span class="blocker">Required checks are red</span>
+        <h3><span class="ns">/gh-resolve:</span>ci-fail</h3>
+        <p class="what">
+          실패한 check 의 로그를 읽어 원인을 특정하고, 로컬에서 고친 뒤 <b>CI 가 돌린 바로 그 명령</b>으로
+          재검증한다. fast-forward push 만 하고, push 가 성공한 뒤에야 <code>CI fail</code> 라벨을 뗀다.
+          job 을 무작정 다시 돌리는 일은 없다.
+        </p>
+        <div class="hub-links">
+          <a href="skill-guides/ci-fail.html"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 2.5h5a2 2 0 012 2v7a1.6 1.6 0 00-1.6-1.6H2.5z"/><path d="M11.5 2.5h-1.4a2 2 0 00-2 2v7a1.6 1.6 0 011.6-1.6h1.8z"/></svg>설명서</a>
+          <a href="skill-output/ci-fail-usage.html"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2.5" width="10" height="9" rx="1.5"/><path d="M4.3 6l1.6 1.5-1.6 1.5"/><path d="M7.6 9.2h2.2"/></svg>실행 기록</a>
+        </div>
+      </article>
+
+      <article class="hub-card tone-neg">
+        <span class="blocker">Branch has conflicts</span>
+        <h3><span class="ns">/gh-resolve:</span>conflict</h3>
+        <p class="what">
+          head 를 base 위로 rebase 하면서 충돌 파일마다 <b>사용자의 의도를 묻고</b> 해소한다.
+          애매한 hunk 를 추측하지 않고, merge commit 을 만들지 않으며,
+          <code>--force-with-lease</code> 가 거부되면 대신 재시도하지 않고 멈춘다.
+        </p>
+        <div class="hub-links">
+          <a href="skill-guides/conflict.html"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 2.5h5a2 2 0 012 2v7a1.6 1.6 0 00-1.6-1.6H2.5z"/><path d="M11.5 2.5h-1.4a2 2 0 00-2 2v7a1.6 1.6 0 011.6-1.6h1.8z"/></svg>설명서</a>
+          <a href="skill-output/conflict-usage.html"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2.5" width="10" height="9" rx="1.5"/><path d="M4.3 6l1.6 1.5-1.6 1.5"/><path d="M7.6 9.2h2.2"/></svg>실행 기록</a>
+        </div>
+      </article>
+
+      <article class="hub-card tone-acc">
+        <span class="blocker">Head is behind its base</span>
+        <h3><span class="ns">/gh-resolve:</span>outdated</h3>
+        <p class="what">
+          가장 싼 경우 — base 는 움직였지만 충돌은 없다. 클린 rebase 후 <code>--force-with-lease</code> push.
+          <b>멱등</b>해서 다시 돌려도 안전하고, rebase 가 충돌을 내는 순간 스스로 풀지 않고
+          exit code 로 <code>conflict</code> 에 넘긴다.
+        </p>
+        <div class="hub-links">
+          <a href="skill-guides/outdated.html"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 2.5h5a2 2 0 012 2v7a1.6 1.6 0 00-1.6-1.6H2.5z"/><path d="M11.5 2.5h-1.4a2 2 0 00-2 2v7a1.6 1.6 0 011.6-1.6h1.8z"/></svg>설명서</a>
+          <a href="skill-output/outdated-usage.html"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2.5" width="10" height="9" rx="1.5"/><path d="M4.3 6l1.6 1.5-1.6 1.5"/><path d="M7.6 9.2h2.2"/></svg>실행 기록</a>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<section data-reveal>
+  <div class="wrap">
+    <h2>왜 하나로 합치지 않았나</h2>
+    <p class="text-secondary" style="margin:14px 0 0;max-width:70ch;">
+      셋은 실패 양상이 다르고, push 정책이 다르고, 멈추는 규칙이 다르다.
+      합치면 이 셋을 안전하게 유지하는 단 하나의 조건 — <strong>지금 보고 있는 blocker 가
+      무엇인지 아는 것</strong> — 이 흐려진다.
+    </p>
+    <div class="how">
+      <div class="how-item">
+        <h4>push 정책이 다르다</h4>
+        <p><code>ci-fail</code> 은 fast-forward 만 한다. 나머지 둘은 published history 를 다시 쓰므로 <code>--force-with-lease</code> 를 쓰고, plain <code>--force</code> 는 어느 쪽도 쓰지 않는다.</p>
+      </div>
+      <div class="how-item">
+        <h4>멈추는 규칙이 다르다</h4>
+        <p><code>outdated</code> 는 충돌을 만나면 abort 하고 넘긴다. <code>conflict</code> 는 애매하면 묻고 기다린다. <code>ci-fail</code> 은 로컬 검증이 빨가면 push 하지 않는다.</p>
+      </div>
+      <div class="how-item">
+        <h4>공통 안전 계약</h4>
+        <p>셋 다 default branch 에서는 실행을 거부하고, 히스토리를 건드리기 전에 <code>BACKUP_SHA</code> 를 출력하며, 모든 <code>gh</code> 호출을 <code>GH_HOST=</code> 로 호스트 고정한다.</p>
+      </div>
+      <div class="how-item">
+        <h4>이 페이지들의 출처</h4>
+        <p>각 페이지는 <code>docs/skill-guides/</code> 와 <code>docs/skill-output/</code> 의 Markdown 원본에서 생성된다. 실행 기록은 실제 PR 을 대상으로 돌린 결과이며, 미실행 단계는 그 사유와 함께 표시된다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>
+      <a href="https://github.com/dEitY719/gh-resolve-skills">dEitY719/gh-resolve-skills</a> ·
+      단일 플러그인 <code>gh-resolve</code> ·
+      인접 동사(PR 생성 · 머지 · 리뷰)는 이 repo 밖에 있다 — 여기는 PR 이 막혔을 때 시작해서 다시 머지 가능해지면 끝난다.
+    </p>
+  </div>
+</footer>
+</main>
+
+<script>
+function toggleMenu() {
+  var d = document.getElementById('vizMenuDropdown');
+  if (d) d.classList.toggle('open');
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.viz-menu')) {
+    var d = document.getElementById('vizMenuDropdown');
+    if (d) d.classList.remove('open');
+  }
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    var d = document.getElementById('vizMenuDropdown');
+    if (d) d.classList.remove('open');
+  }
+});
+
+var ICON_MOON = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 9.6A5.8 5.8 0 016.4 2.5a5.8 5.8 0 107.1 7.1z"/></svg>';
+var ICON_SUN = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="3.1"/><path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15M3.1 3.1l1.1 1.1M11.8 11.8l1.1 1.1M12.9 3.1l-1.1 1.1M4.2 11.8l-1.1 1.1"/></svg>';
+
+var savedTheme = localStorage.getItem('viz-theme');
+var currentTheme = savedTheme || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+function applyTheme(t) {
+  document.documentElement.className = 'theme-' + t;
+  document.getElementById('themeIcon').innerHTML = t === 'dark' ? ICON_MOON : ICON_SUN;
+  document.getElementById('themeLabel').textContent = t === 'dark' ? 'Dark' : 'Light';
+  localStorage.setItem('viz-theme', t);
+  currentTheme = t;
+}
+function cycleTheme() { applyTheme(currentTheme === 'dark' ? 'light' : 'dark'); }
+applyTheme(currentTheme);
+
+document.querySelectorAll('[data-reveal]').forEach(function(el) { el.classList.add('reveal'); });
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) {
+    if (e.isIntersecting) { e.target.classList.add('visible'); revealObserver.unobserve(e.target); }
+  });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+async function downloadImage() {
+  var menu = document.querySelector('.viz-menu');
+  menu.style.display = 'none';
+  try {
+    var url = await htmlToImage.toPng(document.body, { quality: 1, pixelRatio: 2, backgroundColor: getComputedStyle(document.body).backgroundColor });
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'gh-resolve-index.png';
+    a.click();
+  } catch (err) { console.error('Download failed:', err); }
+  menu.style.display = '';
+}
+</script>
+</body>
+</html>
