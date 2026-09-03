@@ -35,7 +35,9 @@ classic Projects 보드가 붙은 repo 에서 GraphQL deprecation 때문에 **�
 정상**으로 흡수되므로 사전 확인 분기가 필요 없다.
 
 ```bash
-. "${SHELL_COMMON:-$HOME/dotfiles/shell-common}/functions/gh_pr_edit_safe.sh"
+_SC="${SHELL_COMMON:-$HOME/dotfiles/shell-common}"
+[ -f "$_SC/functions/gh_pr_edit_safe.sh" ] || _SC="${CLAUDE_PLUGIN_ROOT:-}/lib/vendor/shell-common"
+. "$_SC/functions/gh_pr_edit_safe.sh"
 
 if _vl_err=$(_gh_pr_drop_label "$PR_NUMBER" review-passed \
         "$TARGET_REPO" "$TARGET_HOST" 2>&1); then
