@@ -36,7 +36,7 @@ classic Projects 보드가 붙은 repo 에서 GraphQL deprecation 때문에 **�
 
 ```bash
 _SC="${SHELL_COMMON:-$HOME/dotfiles/shell-common}"
-[ -f "$_SC/functions/gh_pr_edit_safe.sh" ] || _SC="${CLAUDE_PLUGIN_ROOT:-}/lib/vendor/shell-common"
+[ -f "$_SC/functions/gh_pr_edit_safe.sh" ] || { _SC="${CLAUDE_PLUGIN_ROOT:-}/lib/vendor/shell-common"; export SHELL_COMMON="$_SC"; }
 . "$_SC/functions/gh_pr_edit_safe.sh"
 
 if _vl_err=$(_gh_pr_drop_label "$PR_NUMBER" review-passed \
