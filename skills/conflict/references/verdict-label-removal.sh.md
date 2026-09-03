@@ -34,7 +34,7 @@ Caller contract: `PR_NUMBER`, `TARGET_REPO`, `TARGET_HOST` 는 Step 1 이
 
 ```bash
 _SC="${SHELL_COMMON:-$HOME/dotfiles/shell-common}"
-[ -f "$_SC/functions/gh_pr_edit_safe.sh" ] || _SC="${CLAUDE_PLUGIN_ROOT:-}/lib/vendor/shell-common"
+[ -f "$_SC/functions/gh_pr_edit_safe.sh" ] || { _SC="${CLAUDE_PLUGIN_ROOT:-}/lib/vendor/shell-common"; export SHELL_COMMON="$_SC"; }
 . "$_SC/functions/gh_pr_edit_safe.sh"
 
 if _vl_err=$(_gh_pr_drop_label "$PR_NUMBER" review-passed \
