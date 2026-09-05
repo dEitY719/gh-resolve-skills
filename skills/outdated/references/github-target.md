@@ -10,7 +10,13 @@ the host so every sourced helper inherits it:
 ```bash
 REMOTE="${REMOTE:-origin}"
 _SC="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common"
-[ -f "$_SC/functions/gh_host.sh" ] || { _SC="${CLAUDE_PLUGIN_ROOT:-}/lib/vendor/shell-common"; export SHELL_COMMON="$_SC"; }
+[ -f "$_SC/functions/gh_host.sh" ] || _SC="${CLAUDE_PLUGIN_ROOT:-$PWD}/lib/vendor/shell-common"
+[ -f "$_SC/functions/gh_host.sh" ] || {
+    printf '[gh-resolve:outdated] shell-common not found under %s. On Claude Code this is a broken install; on any other harness export CLAUDE_PLUGIN_ROOT=<plugin dir> first.\n' \
+        "$_SC" >&2
+    return 1 2>/dev/null || exit 1
+}
+export SHELL_COMMON="$_SC"
 . "$_SC/functions/gh_host.sh"
 REMOTE_URL=$(git remote get-url "$REMOTE") || exit 1
 TARGET_REPO=$(_gh_parse_owner_repo_url "$REMOTE_URL") || exit 1
@@ -27,6 +33,11 @@ export TARGET_REPO TARGET_HOST
   `origin` fallback, which would mask a typo and target the wrong repo.
 - Never continue with an empty `TARGET_HOST` — that is exactly the silent
   misroute state of #1403.
+- The `_SC` lookup order (`DOTFILES_ROOT` -> `CLAUDE_PLUGIN_ROOT`/`$PWD` -> stop)
+  is the convention in
+  [`harness-skills/references/plugin-root.md`](https://github.com/dEitY719/harness-skills/blob/main/references/plugin-root.md) — the SSOT, not a local
+  idiom. The second `[ -f ]` is not a duplicate: the first picks a tier, the
+  second proves it before the `export`.
 
 ## Host targeting rule
 
