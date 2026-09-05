@@ -10,7 +10,7 @@
   {
     "query": "/gh-resolve:conflict 1388",
     "should_trigger": true,
-    "note": "slash-literal: update if the skill is renamed (#1410)"
+    "note": "slash-literal: update if the skill is renamed (dEitY719/dotfiles#1410)"
   },
   {
     "query": "PR 올려둔 사이에 다른 사람이 같은 파일을 고쳐서 컨플릭트가 났어. 어느 쪽을 살릴지 내가 정하면서 하나씩 풀고 싶어",
@@ -27,7 +27,7 @@
   {
     "query": "/gh-resolve:conflict 로 충돌 난 PR 정리하고 conflict 라벨도 같이 떼줘",
     "should_trigger": true,
-    "note": "slash-literal: update if the skill is renamed (#1410)"
+    "note": "slash-literal: update if the skill is renamed (dEitY719/dotfiles#1410)"
   },
   {
     "query": "pr 77 shows mergeable=CONFLICTING. walk me through getting it back to green without a merge commit",

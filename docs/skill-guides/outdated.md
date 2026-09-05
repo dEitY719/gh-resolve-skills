@@ -32,7 +32,7 @@
 |-------------|--------|------|
 | `pr-number` | 현재 브랜치에서 자동 탐지 | `--worktree` 를 쓰면 **필수**가 된다 |
 | `remote` | `origin` | 이 remote 의 URL 에서 `TARGET_HOST` + `TARGET_REPO` 를 바인딩한다 |
-| `--worktree <path>` | 없음 | 모든 git 명령을 `<path>` 에서 실행하고 push 에 명시적 refspec 을 쓴다. 경로는 호출자(`gh:pr-merge-train`)가 소유 |
+| `--worktree <path>` | 없음 | 모든 git 명령을 `<path>` 에서 실행하고 push 에 명시적 refspec 을 쓴다. 경로는 호출자(`gh-pr:merge-train`)가 소유 |
 | `-h` / `--help` / `help` | — | `references/help.md` 를 그대로 출력하고 종료. API 호출 없음 |
 
 ### 종료 코드

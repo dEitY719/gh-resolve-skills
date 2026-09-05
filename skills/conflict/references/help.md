@@ -19,8 +19,8 @@
 /gh-resolve:conflict -h           # this help
 ```
 
-`--worktree` exists for `gh:pr-merge-train`: the PR's head branch is usually
-already checked out in the worktree `gh:issue-flow` opened it from, so the train
+`--worktree` exists for `gh-pr:merge-train`: the PR's head branch is usually
+already checked out in the worktree `gh-flow:issue` opened it from, so the train
 hands over a detached scratch worktree it created and will destroy. The push
 then uses an explicit `HEAD:refs/heads/<head>` refspec, since a detached HEAD
 names no branch, and the auto-stash never fires — the scratch tree is clean.
@@ -34,7 +34,7 @@ names no branch, and the auto-stash never fires — the scratch tree is clean.
 ## When NOT to use
 
 - Conflicts are trivial enough that `gh pr merge --rebase` handles them.
-  (Use `/gh-pr-merge` — if it fails with `CONFLICTING`, come back here.)
+  (Use `/gh-pr:merge` — if it fails with `CONFLICTING`, come back here.)
 - You prefer a merge-commit strategy. This skill refuses that; edit the
   PR with `git merge main` manually if that's really what you want.
 - You are on the repo's default branch. The skill refuses — create or
@@ -87,7 +87,7 @@ names no branch, and the auto-stash never fires — the scratch tree is clean.
 - `gh-resolve:ci-fail` — sister skill, resolves a `CI fail` label
   by reading failing check logs and pushing a fix. Different verb
   (read-logs-and-edit vs rebase) for the same PR-lifecycle slot.
-- `gh:pr-merge` — merge an already-clean PR (rebase/squash/merge).
-- `gh:pr-merge-emergency` — admin-bypass merge with audit trail.
-- `gh:pr` — create a PR from the current branch.
-- `gh:pr-reply` — reply to PR review comments after rebasing.
+- `gh-pr:merge` — merge an already-clean PR (rebase/squash/merge).
+- `gh-pr:merge-emergency` — admin-bypass merge with audit trail.
+- `gh-pr:create` — create a PR from the current branch.
+- `gh-pr:reply` — reply to PR review comments after rebasing.

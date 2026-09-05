@@ -3,11 +3,11 @@
 After the report, post a PR comment with ai-metrics (soft-fail — warn on
 error, never block). `CONFLICT_FILES` is the count of files that had
 `UU`/`AA`/`DU` conflicts in Step 3. When `GH_DISABLE_AI_METRICS=1`,
-skip the comment entirely (issue #399).
+skip the comment entirely (issue dEitY719/dotfiles#399).
 
 Caller contract: `START_TS`, `PR_NUMBER`, `CONFLICT_FILES`, `TARGET_REPO` and
 `TARGET_HOST` must already be exported by Step 1 per
-`references/github-target.md` (#1403).
+`references/github-target.md` (dEitY719/dotfiles#1403).
 
 The dotfiles original used the emoji footer glyphs here. This repo forbids
 emojis anywhere in tracked text (CI enforces it), so the summary line carries

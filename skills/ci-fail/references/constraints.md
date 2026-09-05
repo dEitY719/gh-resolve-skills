@@ -8,5 +8,5 @@ Never:
 - Remove the `CI fail` label before push succeeds.
 - Auto-create missing labels — absent label → soft-fail.
 - Auto-stash — working tree must be clean before the skill runs.
-- Delegate to `gh:commit` inside composition — inline the commit instead
+- Delegate to `gh-pr:commit` inside composition — inline the commit instead
   (avoids re-prompt inside a composed skill run).

@@ -7,7 +7,7 @@ Detail companion for SKILL.md Steps 2, 3, and 6.
 ### Pre-check (is `main` red?)
 
 PR 회귀 fix 에 들어가기 전에 main 자체가 적색인지 먼저 확인한다.
-#755 의 28건 bats fail 처럼 PR 입장에선 inherited red — PR 차원의
+dEitY719/dotfiles#755 의 28건 bats fail 처럼 PR 입장에선 inherited red — PR 차원의
 fix 가 원천적으로 불가능한 케이스를 30분 분석 후에야 깨닫는 회귀를 막는다.
 
 #### 1초 점검 명령
@@ -114,7 +114,8 @@ done
 One `gh run list` call instead of N. Cuts network/process overhead
 when several workflows fail at once. Both `gh run list` and `gh run view`
 take `--repo`, and both are host-pinned with `GH_HOST="$TARGET_HOST"` — never
-rely on cwd-based repo detection (#1403 / #1407, `references/github-target.md`).
+rely on cwd-based repo detection (dEitY719/dotfiles#1403 /
+dEitY719/dotfiles#1407, `references/github-target.md`).
 
 ### Common failure patterns
 

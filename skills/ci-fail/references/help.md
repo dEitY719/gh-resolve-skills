@@ -34,9 +34,9 @@
 - CI red because of flake / infra outage. Re-run the workflow, don't
   open a code fix.
 - Merge conflict on the PR (use `/gh-resolve:conflict` instead).
-- Review comments need replies (use `/gh-pr-reply` after CI green).
+- Review comments need replies (use `/gh-pr:reply` after CI green).
 - You want to admin-bypass and merge without fixing CI
-  (use `/gh-pr-merge-emergency` with audit trail).
+  (use `/gh-pr:merge-emergency` with audit trail).
 - You're on the repo's default branch — refuses, check out the PR's
   head branch first.
 
@@ -74,16 +74,16 @@
 - Auto-create the `CI fail` label if missing — soft-fail with a warning.
 - Auto-stash a dirty working tree.
 - Push when local lint/test fails.
-- Delegate the commit step to `gh:commit` — inline commit only, to
+- Delegate the commit step to `gh-pr:commit` — inline commit only, to
   avoid re-prompts inside a composition.
 - Resolve merge conflicts (that's `/gh-resolve:conflict`).
-- Reply to review comments (that's `/gh-pr-reply` after CI green).
+- Reply to review comments (that's `/gh-pr:reply` after CI green).
 
 ## Related skills
 
 - `gh-resolve:conflict` — sister skill, rebase-resolves a base-moved
   PR conflict warning. Different verb (rebase vs read-logs-and-edit).
-- `gh:pr-reply` — reply to PR review comments after CI is green.
-- `gh:pr-approve` — review and approve a PR (after CI green).
-- `gh:pr-merge` — merge an already-clean PR (rebase/squash/merge).
-- `gh:pr-merge-emergency` — admin-bypass merge with audit trail.
+- `gh-pr:reply` — reply to PR review comments after CI is green.
+- `gh-pr:approve` — review and approve a PR (after CI green).
+- `gh-pr:merge` — merge an already-clean PR (rebase/squash/merge).
+- `gh-pr:merge-emergency` — admin-bypass merge with audit trail.

@@ -4,6 +4,7 @@ description: >-
   Fix a GitHub PR's red CI: read failing check logs, fix the cause locally.
   Use for /gh-resolve:ci-fail, "PR CI fail 해결", "CI fail 라벨 떼줘". Not a
   rebase conflict (gh-resolve:conflict) or base sync (gh-resolve:outdated).
+license: MIT
 allowed-tools: Bash, Read, Edit, Write, Grep, Glob
 metadata:
   model_recommendation:
@@ -27,7 +28,7 @@ Positional: `[pr-number] [remote]`. Flags: `--wait <seconds>` (opt-in, default
 off), `--label-variant <input>` (override canonical label).
 
 - `remote` default `origin`. Missing → `git remote -v` and stop. Bind `TARGET_HOST` +
-  `TARGET_REPO` from that one remote URL **before any `gh` call** per `references/github-target.md` (#1403).
+  `TARGET_REPO` from that one remote URL **before any `gh` call** per `references/github-target.md` (dEitY719/dotfiles#1403).
 - `pr-number` omitted → auto-detect via `GH_HOST="$TARGET_HOST" gh pr view --json
   number,state,headRefName` — no `--repo`, `gh` rejects it without a PR argument
   (`references/github-target.md` → "Exception"). No PR → stop. `--label-variant`
@@ -64,7 +65,7 @@ before push`. **Do not push.**
 
 ## Step 5: Commit + Push (no force)
 
-Inline commit (do NOT delegate to `gh:commit` — composition re-prompt). Title
+Inline commit (do NOT delegate to `gh-pr:commit` — composition re-prompt). Title
 `fix(ci): <summary> (#<PR_NUMBER>)`. Fast-forward push only — **no `--force`, no
 `--force-with-lease`**. Rejected → surface divergence and stop; **label is NOT
 yet removed**. Exact commands + divergence message: `references/safety.md` →
@@ -82,11 +83,11 @@ removal.` Without flag, skip. Polling loop: `references/ci-log-analysis.md` →
 **Invariant** — last mutation. Step 5 push failed → this step does NOT run
 (label stays so reviewers know CI is still red). Canonical label name from
 `references/label-normalization.md`. Remove via REST DELETE (not `gh pr edit
---remove-label` — classic-Projects silent-fail, #326 Bug B); 404 = absent →
+--remove-label` — classic-Projects silent-fail, dEitY719/dotfiles#326 Bug B); 404 = absent →
 soft-fail. Full block + ai-metrics comment: `references/safety.md` → "Step 7".
 
 Report: `[OK] PR #<N> CI 복구 완료 · 라벨 제거됨 · <sha> push 됨.` followed by
-`Next: /gh-pr-reply <N>  # CI 그린 확인 후 리뷰어 회신`.
+`Next: /gh-pr:reply <N>  # CI 그린 확인 후 리뷰어 회신`.
 
 ## Constraints
 

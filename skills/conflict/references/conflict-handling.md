@@ -117,6 +117,7 @@ Rebase aborted (HEAD = BACKUP_SHA). No changes pushed.
 In `--worktree` mode, the "leave the tree in its conflicted state" instruction
 above still applies — at `<path>`, not the session's own checkout. This skill
 never deletes `--worktree`'s path itself (SKILL.md constraint); when the
-caller is `gh:pr-merge-train`, it reports `<path>` and leaves it in place too
-for the same reason — see `gh-pr-merge-train/references/train-loop.md` →
+caller is `gh-pr:merge-train`, it reports `<path>` and leaves it in place too
+for the same reason — see `dEitY719/gh-pr-skills` →
+`skills/merge-train/references/train-loop.md` →
 "Teardown — the one exception".

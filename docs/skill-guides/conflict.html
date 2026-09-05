@@ -284,7 +284,7 @@ footer a:hover { text-decoration: underline; }
         <tbody>
           <tr><td><code>pr-number</code></td><td>현재 브랜치에서 자동 탐지</td><td><code>--worktree</code> 를 쓰면 <strong>필수</strong>가 된다 — detached HEAD 에는 탐지할 브랜치가 없다</td></tr>
           <tr><td><code>remote</code></td><td><code>origin</code></td><td>이 remote 의 URL 에서 <code>TARGET_HOST</code> + <code>TARGET_REPO</code> 를 바인딩한다</td></tr>
-          <tr><td><code>--worktree &lt;path&gt;</code></td><td>없음</td><td>모든 git 명령이 <code>git -C "&lt;path&gt;"</code> 가 되고 push 는 명시적 refspec 을 쓴다. 경로의 생명주기는 호출자 <code>gh:pr-merge-train</code> 이 소유한다</td></tr>
+          <tr><td><code>--worktree &lt;path&gt;</code></td><td>없음</td><td>모든 git 명령이 <code>git -C "&lt;path&gt;"</code> 가 되고 push 는 명시적 refspec 을 쓴다. 경로의 생명주기는 호출자 <code>gh-pr:merge-train</code> 이 소유한다</td></tr>
           <tr><td><code>-h</code> / <code>--help</code></td><td>—</td><td><code>references/help.md</code> 를 그대로 출력하고 종료. API 호출 없음</td></tr>
         </tbody>
       </table>

@@ -33,7 +33,7 @@ GitHub 이 무엇을 문제 삼고 있는지로 고르는 것이지, 내가 무�
 |-------------|--------|------|
 | `pr-number` | 현재 브랜치에서 자동 탐지 | `--worktree` 를 쓰면 **필수**가 된다 (detached HEAD 에는 탐지할 브랜치가 없다) |
 | `remote` | `origin` | 이 remote 의 URL 에서 `TARGET_HOST` + `TARGET_REPO` 를 바인딩한다 |
-| `--worktree <path>` | 없음 | 모든 git 명령이 `git -C "<path>" ...` 가 되고 push 는 명시적 refspec 을 쓴다. 경로의 생명주기는 호출자(`gh:pr-merge-train`)가 소유한다 |
+| `--worktree <path>` | 없음 | 모든 git 명령이 `git -C "<path>" ...` 가 되고 push 는 명시적 refspec 을 쓴다. 경로의 생명주기는 호출자(`gh-pr:merge-train`)가 소유한다 |
 | `-h` / `--help` / `help` | — | `references/help.md` 를 그대로 출력하고 종료. API 호출 없음 |
 
 ## 동작 단계
