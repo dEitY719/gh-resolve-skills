@@ -12,9 +12,21 @@ Run as a parallel batch. Any failure → stop with the matching message.
 | Check | How | Fail message |
 |---|---|---|
 | Inside a git repo | `git rev-parse --show-toplevel` | `[FAIL] not inside a git repo` |
-| Not on default branch | Compare `git rev-parse --abbrev-ref HEAD` against `GH_HOST="$TARGET_HOST" gh repo view --repo "$TARGET_REPO" --json defaultBranchRef -q .defaultBranchRef.name` | `[FAIL] refuses on default branch (<DEFAULT>) — check out the PR's head branch first` |
+| Default branch resolvable | `DEFAULT=$(GH_HOST="$TARGET_HOST" gh repo view "$TARGET_REPO" --json defaultBranchRef -q .defaultBranchRef.name) \|\| DEFAULT=""` — must exit 0 and be non-empty | `[FAIL] could not resolve the default branch of <TARGET_REPO> — refusing` |
+| Not on default branch | `git rev-parse --abbrev-ref HEAD` != `$DEFAULT` | `[FAIL] refuses on default branch (<DEFAULT>) — check out the PR's head branch first` |
 | Working tree clean | `git status --porcelain` empty | `[FAIL] working tree dirty — commit/stash your edits first; this skill never auto-stashes` |
 | No in-progress rebase / merge / cherry-pick | `git rev-parse --git-path rebase-merge` / `rebase-apply` / `MERGE_HEAD` / `CHERRY_PICK_HEAD` / `REVERT_HEAD` all absent | `[FAIL] in-progress <name> at <marker> — finish or abort first` |
+
+The two default-branch rows are one guard split across two lines, because the
+first is what makes the second trustworthy. `gh repo view` takes the repository
+**positionally** and has no `--repo` flag, so the old `gh repo view --repo
+"$TARGET_REPO"` form exited 1 with `unknown flag: --repo` on every run, left
+`DEFAULT` empty, and `[ "main" = "" ]` waved the default branch through (#10).
+Resolve `DEFAULT` first, refuse on a non-zero exit or an empty value, and only
+then compare. The refusal is specified in full — with the `--worktree` variant
+and the reason the exit status is checked rather than only the string — in
+`gh-resolve:conflict`'s `references/safety.md` → "Never run on the default
+branch", the SSOT for all three skills.
 
 ### Why no auto-stash
 

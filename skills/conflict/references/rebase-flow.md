@@ -25,7 +25,7 @@ Run all four in a single tool message. Any failure → stop immediately.
 ```bash
 git rev-parse --is-inside-work-tree
 git rev-parse --abbrev-ref HEAD
-GH_HOST="$TARGET_HOST" gh repo view --repo "$TARGET_REPO" --json defaultBranchRef -q .defaultBranchRef.name
+GH_HOST="$TARGET_HOST" gh repo view "$TARGET_REPO" --json defaultBranchRef -q .defaultBranchRef.name
 git status --porcelain
 ls "$(git rev-parse --git-path rebase-merge)" \
    "$(git rev-parse --git-path rebase-apply)" \
@@ -42,6 +42,7 @@ Stop conditions:
 | Check | Stop reason |
 |---|---|
 | not a git repo | "not inside a git repository" |
+| default branch unresolved (`gh repo view` exited non-zero) | "could not resolve the default branch — refusing" (the guard fails closed, #10; never continue on an unset `DEFAULT`) |
 | current branch == default | "refuse to rebase the default branch" |
 | any of `rebase-merge` / `rebase-apply` / `MERGE_HEAD` / `CHERRY_PICK_HEAD` exists (resolved via `git rev-parse --git-path`) | "rebase/merge/cherry-pick already in progress — finish or abort first" |
 
@@ -68,9 +69,13 @@ BASE=$(printf '%s' "$REFS" | jq -r .baseRefName)
 HEAD_REF=$(printf '%s' "$REFS" | jq -r .headRefName)
 ```
 
-Fall back to `GH_HOST="$TARGET_HOST" gh repo view --repo "$TARGET_REPO" --json
+Fall back to `GH_HOST="$TARGET_HOST" gh repo view "$TARGET_REPO" --json
 defaultBranchRef -q .defaultBranchRef.name` only when auto-detecting a PR and
-`gh pr view` returned nothing yet.
+`gh pr view` returned nothing yet. The repo is **positional** — `gh repo view`
+has no `--repo` flag (#10). Same call as the preconditions batch above and as
+`safety.md` → "Never run on the default branch", which is its SSOT, and the same
+rule applies: a non-zero exit stops the run, because rebasing onto an empty
+`$BASE` is not a recoverable state.
 
 ## Fetch + rebase
 

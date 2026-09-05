@@ -36,9 +36,20 @@ Every `gh` call in this skill — SKILL.md and `references/` alike — runs as:
 GH_HOST="$TARGET_HOST" gh <sub-command> ... --repo "$TARGET_REPO"
 ```
 
-`gh api` is the one exception to the flag: it has no `--repo`, so the repo goes
-into the path instead — `gh api "repos/$TARGET_REPO/..."`, never a literal
-`{owner}/{repo}`.
+Two sub-commands do not take the flag, because they do not have it:
+
+- `gh api` — the repo goes into the path instead: `gh api "repos/$TARGET_REPO/..."`,
+  never a literal `{owner}/{repo}`.
+- `gh repo view` — the repo is the **positional** argument:
+  `gh repo view "$TARGET_REPO" --json ...`. Passing `--repo` here exits 1 with
+  `unknown flag: --repo`. It is the neighbour of the `gh pr view --repo` calls
+  in the same batches, and copying their shape onto it is what silently
+  disabled the default-branch guard in #10 — the failed call left `DEFAULT`
+  empty and the comparison waved `main` through to a force-push. Check the
+  exit status of any call whose result a safety guard depends on.
+
+`GH_HOST="$TARGET_HOST"` is not optional on either; only the repo argument
+changes shape.
 
 ## Exception — `gh pr <verb>` with no PR argument
 
