@@ -23,8 +23,8 @@ front.
 
 - `git`, and `gh` authenticated for the host the remote points at. Each skill
   binds `TARGET_HOST` + `TARGET_REPO` from the remote URL **before any `gh`
-  call** and prefixes every call with `GH_HOST=` (dEitY719/dotfiles#1403). A GHES remote resolves
-  to the wrong server without that prefix, so never drop it.
+  call** and prefixes every call with `GH_HOST=` (dEitY719/dotfiles#1403). A GHES
+  remote resolves to the wrong server without that prefix, so never drop it.
 - A checkout on the PR's head branch — or, for `conflict` and `outdated`, a
   detached scratch worktree passed as `--worktree <path>`. That flag makes the
   PR number mandatory and is normally supplied by `gh-pr:merge-train`, which

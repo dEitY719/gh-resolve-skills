@@ -30,8 +30,8 @@ The skills were extracted from `dEitY719/dotfiles`
 (`claude/skills/gh-pr-resolve-{ci-fail,conflict,outdated}`) as a content
 snapshot at source commit `b5f7fd1347e56c9a70e9b67ba15e7c5b7f1cf9ac` — no history
 rewriting. The dotfiles copies were removed in Phase 4 of that repo's migration
-plan (dEitY719/dotfiles#1410 NF-1 / NF-3), so that path no longer resolves there. This is Phase 2
-of dEitY719/dotfiles#1410 (tracking issue dEitY719/dotfiles#1660);
+plan (dEitY719/dotfiles#1410 NF-1 / NF-3), so that path no longer resolves there.
+This is Phase 2 of dEitY719/dotfiles#1410 (tracking issue dEitY719/dotfiles#1660);
 `packaging-skills` was Phase 0, and `harness-skills` and `pkm-skills` were
 Phase 1.
 

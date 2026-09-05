@@ -66,6 +66,6 @@
   멈춘다 (manual handoff).
 - auto-stash 하지 않는다. 클린 트리가 전제다.
 - `review-passed` / `review-blocked` 를 추가하지 않고 `review-blocked` 를 제거하지도
-  않는다. push 성공 후 낡은 `review-passed` 제거만 필수다 (#1563) — 리뷰되지 않은
+  않는다. push 성공 후 낡은 `review-passed` 제거만 필수다 (dEitY719/dotfiles#1563) — 리뷰되지 않은
   head 에 남은 낡은 판정이 바로 이 규칙이 고치는 버그다.
 - `--worktree` 경로를 만들지도 지우지도 않는다.
