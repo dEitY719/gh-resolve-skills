@@ -34,7 +34,13 @@ Caller contract: `PR_NUMBER`, `TARGET_REPO`, `TARGET_HOST` 는 Step 1 이
 
 ```bash
 _SC="${SHELL_COMMON:-$HOME/dotfiles/shell-common}"
-[ -f "$_SC/functions/gh_pr_edit_safe.sh" ] || { _SC="${CLAUDE_PLUGIN_ROOT:-}/lib/vendor/shell-common"; export SHELL_COMMON="$_SC"; }
+[ -f "$_SC/functions/gh_pr_edit_safe.sh" ] || _SC="${CLAUDE_PLUGIN_ROOT:-$PWD}/lib/vendor/shell-common"
+[ -f "$_SC/functions/gh_pr_edit_safe.sh" ] || {
+    printf '[gh-resolve:conflict] shell-common not found under %s. On Claude Code this is a broken install; on any other harness export CLAUDE_PLUGIN_ROOT=<plugin dir> first.\n' \
+        "$_SC" >&2
+    return 1 2>/dev/null || exit 1
+}
+export SHELL_COMMON="$_SC"
 . "$_SC/functions/gh_pr_edit_safe.sh"
 
 if _vl_err=$(_gh_pr_drop_label "$PR_NUMBER" review-passed \
@@ -44,6 +50,16 @@ else
     echo "[WARN] \`review-passed\` 제거 실패 — 리뷰되지 않은 커밋에 판정이 남아 있다: ${_vl_err}"
 fi
 ```
+
+Soft-fail 이다: shell-common 을 못 찾아 위 블록이 non-zero 로 멈추더라도 그 종료
+코드 자체가 호출자(Step 5 의 soft-fail 래퍼)가 흡수하는 신호이고, 리베이스
+검증/보고는 그대로 진행한다.
+
+헬퍼 조회 순서(`SHELL_COMMON`/dotfiles → `CLAUDE_PLUGIN_ROOT`/`$PWD` → 중단)의
+SSOT 는 [`harness-skills/references/plugin-root.md`](https://github.com/dEitY719/harness-skills/blob/main/references/plugin-root.md) 다. 두 번째
+`[ -f ]` 는 중복이 아니라 고른 단을 증명하는 단계이고, `export` 는 그 증명
+뒤에 온다 — 빈 값을 이어붙인 `/lib/vendor/...` 를 먼저 export 하던 것이 #8 이
+보여준 결함이다.
 
 ## 호스트 고정
 
