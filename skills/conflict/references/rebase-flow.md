@@ -20,12 +20,15 @@ Without the flag every command below is read literally, unchanged.
 
 ## Preconditions (parallel batch)
 
-Run all four in a single tool message. Any failure → stop immediately.
+Run all five in a single tool message. Any failure → stop immediately,
+including the `gh repo view` line: its output is `DEFAULT` for the stop table
+below, and its exit status is checked, never assumed.
 
 ```bash
 git rev-parse --is-inside-work-tree
 git rev-parse --abbrev-ref HEAD
-GH_HOST="$TARGET_HOST" gh repo view --repo "$TARGET_REPO" --json defaultBranchRef -q .defaultBranchRef.name
+# binds DEFAULT; a non-zero exit here is a hard stop, not an empty DEFAULT (#10)
+GH_HOST="$TARGET_HOST" gh repo view "$TARGET_REPO" --json defaultBranchRef -q .defaultBranchRef.name
 git status --porcelain
 ls "$(git rev-parse --git-path rebase-merge)" \
    "$(git rev-parse --git-path rebase-apply)" \
@@ -42,6 +45,7 @@ Stop conditions:
 | Check | Stop reason |
 |---|---|
 | not a git repo | "not inside a git repository" |
+| default branch unresolved (`gh repo view` exited non-zero) | "could not resolve the default branch — refusing" (the guard fails closed, #10; never continue on an unset `DEFAULT`) |
 | current branch == default | "refuse to rebase the default branch" |
 | any of `rebase-merge` / `rebase-apply` / `MERGE_HEAD` / `CHERRY_PICK_HEAD` exists (resolved via `git rev-parse --git-path`) | "rebase/merge/cherry-pick already in progress — finish or abort first" |
 
@@ -68,9 +72,11 @@ BASE=$(printf '%s' "$REFS" | jq -r .baseRefName)
 HEAD_REF=$(printf '%s' "$REFS" | jq -r .headRefName)
 ```
 
-Fall back to `GH_HOST="$TARGET_HOST" gh repo view --repo "$TARGET_REPO" --json
+Fall back to `GH_HOST="$TARGET_HOST" gh repo view "$TARGET_REPO" --json
 defaultBranchRef -q .defaultBranchRef.name` only when auto-detecting a PR and
-`gh pr view` returned nothing yet.
+`gh pr view` returned nothing yet. The repo is **positional** — no `--repo`
+flag (#10) — and a non-zero exit stops the run, because rebasing onto an empty
+`$BASE` is not a recoverable state.
 
 ## Fetch + rebase
 

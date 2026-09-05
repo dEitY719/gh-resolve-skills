@@ -107,10 +107,18 @@ Decide whether to merge those in or discard them, then re-run this skill.
 
 ## Never run on the default branch
 
+All three skills carry this refusal, each with its own exit code; `#10` is the
+anchor that ties the copies together, the way `#1403` ties the three
+`github-target.md` copies. Change one, grep the number and change the others.
+
 ```bash
 CURRENT=$(git rev-parse --abbrev-ref HEAD)
-DEFAULT=$(GH_HOST="$TARGET_HOST" gh repo view --repo "$TARGET_REPO" \
-    --json defaultBranchRef -q .defaultBranchRef.name)
+if ! DEFAULT=$(GH_HOST="$TARGET_HOST" gh repo view "$TARGET_REPO" \
+        --json defaultBranchRef -q .defaultBranchRef.name) || [ -z "$DEFAULT" ]; then
+    echo "refuse: could not resolve the default branch of $TARGET_REPO."
+    echo "the guard fails closed — fix the gh call or the Step 1 target binding."
+    exit 1
+fi
 if [ "$CURRENT" = "$DEFAULT" ]; then
     echo "refuse: currently on the default branch ($DEFAULT)."
     echo "check out the PR's head branch first."
@@ -118,15 +126,34 @@ if [ "$CURRENT" = "$DEFAULT" ]; then
 fi
 ```
 
+`$TARGET_REPO` is **positional**: `gh repo view` has no `--repo` flag (#10).
+The old `--repo "$TARGET_REPO"`, copied from the neighbouring `gh pr view`
+calls, exited 1 every time; `DEFAULT` was empty, `[ "main" = "" ]` was false,
+and the run continued to Step 4's `git push --force-with-lease` on the default
+branch.
+
+Test the **exit status**, not just the string. `[ -z "$DEFAULT" ]` alone is
+enough only because `gh repo view` writes its error to stderr; a command that
+prints on failure would sail through. `gh api "repos/$TARGET_REPO" --jq
+.default_branch` — the tempting alternative, since `github-target.md` already
+puts a repo in a `gh api` path — is exactly that command: on a 404 it skips
+`--jq` and echoes `{"message":"Not Found",...}` to stdout, which is non-empty
+and equals no branch name. Keep the check in the `if`, not as a trailing
+`|| DEFAULT=""`: both are correct, but two PR #11 reviewers read the trailing
+form as discarding the status, and a guard that reads as unsafe gets
+"corrected" back into a hole.
+
 The default branch should never be force-pushed by this skill. If the
 PR's head IS the default branch (cross-fork PR where the head came from
 a fork), that's out of scope — tell the user and stop.
 
 In `--worktree` mode `git -C "<path>" rev-parse --abbrev-ref HEAD` answers
 `HEAD` — the worktree is detached and has no branch to compare. The guard is
-not dropped, it moves to the thing that is actually at risk: compare `HEAD_REF`
-(the PR's `headRefName`, which the push refspec targets) against `DEFAULT`, and
-refuse on a match.
+not dropped, it moves to the thing that is actually at risk: substitute
+`HEAD_REF` (the PR's `headRefName`, which the push refspec targets) for
+`CURRENT` and refuse on a match. Only the compared value changes — the
+`DEFAULT` lookup and its unresolved-refusal `if` run unchanged, so a failed
+lookup stops the worktree path too.
 
 ## Recovery cheat-sheet (for the final report)
 

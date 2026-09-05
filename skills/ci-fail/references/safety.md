@@ -12,9 +12,17 @@ Run as a parallel batch. Any failure → stop with the matching message.
 | Check | How | Fail message |
 |---|---|---|
 | Inside a git repo | `git rev-parse --show-toplevel` | `[FAIL] not inside a git repo` |
-| Not on default branch | Compare `git rev-parse --abbrev-ref HEAD` against `GH_HOST="$TARGET_HOST" gh repo view --repo "$TARGET_REPO" --json defaultBranchRef -q .defaultBranchRef.name` | `[FAIL] refuses on default branch (<DEFAULT>) — check out the PR's head branch first` |
+| Default branch resolvable | `if ! DEFAULT=$(GH_HOST="$TARGET_HOST" gh repo view "$TARGET_REPO" --json defaultBranchRef -q .defaultBranchRef.name) \|\| [ -z "$DEFAULT" ]; then` — refuse. The exit status is checked, not just the string | `[FAIL] could not resolve the default branch of <TARGET_REPO> — refusing` |
+| Not on default branch | `git rev-parse --abbrev-ref HEAD` != `$DEFAULT` | `[FAIL] refuses on default branch (<DEFAULT>) — check out the PR's head branch first` |
 | Working tree clean | `git status --porcelain` empty | `[FAIL] working tree dirty — commit/stash your edits first; this skill never auto-stashes` |
 | No in-progress rebase / merge / cherry-pick | `git rev-parse --git-path rebase-merge` / `rebase-apply` / `MERGE_HEAD` / `CHERRY_PICK_HEAD` / `REVERT_HEAD` all absent | `[FAIL] in-progress <name> at <marker> — finish or abort first` |
+
+Order matters: resolve `DEFAULT` first, and treat a non-zero exit or an empty
+value as a refusal in its own right. The repo is **positional** — `gh repo view`
+has no `--repo` flag, and the old `--repo "$TARGET_REPO"` form exited 1 every
+run, leaving `DEFAULT` empty so `[ "main" = "" ]` waved the default branch
+through to the push (#10). Same refusal in `gh-resolve:conflict` and
+`gh-resolve:outdated`; grep `#10` before changing it.
 
 ### Why no auto-stash
 

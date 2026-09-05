@@ -36,9 +36,14 @@ Every `gh` call in this skill — SKILL.md and `references/` alike — runs as:
 GH_HOST="$TARGET_HOST" gh <sub-command> ... --repo "$TARGET_REPO"
 ```
 
-`gh api` is the one exception to the flag: it has no `--repo`, so the repo goes
-into the path instead — `gh api "repos/$TARGET_REPO/..."`, never a literal
-`{owner}/{repo}`.
+Two sub-commands take no `--repo` flag; only the repo argument changes shape:
+
+- `gh api` — the repo goes into the path:
+  `GH_HOST="$TARGET_HOST" gh api "repos/$TARGET_REPO/..."`, never a literal
+  `{owner}/{repo}`.
+- `gh repo view` — the repo is **positional**:
+  `GH_HOST="$TARGET_HOST" gh repo view "$TARGET_REPO" --json ...`. Passing
+  `--repo` exits 1 with `unknown flag: --repo` (#10).
 
 ## Exception — `gh pr <verb>` with no PR argument
 
