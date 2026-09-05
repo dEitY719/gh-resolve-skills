@@ -92,9 +92,14 @@ lockfile.
 
 ## Detecting user-side abort
 
-If between iterations `.git/rebase-merge` and `.git/rebase-apply` both
-disappear and `HEAD` is back to `BACKUP_SHA`, the user ran
-`git rebase --abort` in another shell. Stop cleanly:
+If between iterations `$(git rev-parse --git-path rebase-merge)` and
+`$(git rev-parse --git-path rebase-apply)` both disappear and `HEAD` is back to
+`BACKUP_SHA`, the user ran `git rebase --abort` in another shell. Resolve both
+markers through `git rev-parse` (`references/safety.md` -> "In-progress
+operation guard"): a linked worktree's `.git` is a file, so a hardcoded
+`.git/<name>` test answers `ENOTDIR` and reads as "disappeared" whether or not a
+rebase is in progress — which in `--worktree` mode silently collapses this
+two-signal check onto `HEAD == BACKUP_SHA` alone. Stop cleanly:
 
 ```
 Rebase aborted (HEAD = BACKUP_SHA). No changes pushed.
