@@ -5,7 +5,7 @@ Positional args: `[pr-number] [remote]`, both optional. One flag:
 
 - `remote` — default `origin`; missing → `git remote -v` + exit 2. Bind
   `TARGET_HOST` + `TARGET_REPO` from that one remote URL **before any `gh`
-  call**, per `references/github-target.md` (#1403).
+  call**, per `references/github-target.md` (dEitY719/dotfiles#1403).
 - `pr-number` — if omitted, auto-detect via `GH_HOST="$TARGET_HOST" gh pr view
   --json number,headRefName,baseRefName,url,mergeable,mergeStateStatus` on the
   current branch. No PR → `[FAIL] no PR for current branch — pass PR#
@@ -54,7 +54,7 @@ Capture `BACKUP_SHA=$(git rev-parse HEAD)` and print it for
 
 ## `--worktree <path>` mode
 
-`gh:pr-merge-train` cannot check the PR's head branch out here: `gh:issue-flow`
+`gh-pr:merge-train` cannot check the PR's head branch out here: `gh-flow:issue`
 opened that PR from its own worktree, which still holds the branch. It passes a
 **detached scratch worktree** it created and will destroy instead, and this
 skill just operates inside it.

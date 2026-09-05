@@ -33,7 +33,7 @@ GitHub 이 무엇을 문제 삼고 있는지로 고르는 것이지, 내가 무�
 |-------------|--------|------|
 | `pr-number` | 현재 브랜치에서 자동 탐지 | `--worktree` 를 쓰면 **필수**가 된다 (detached HEAD 에는 탐지할 브랜치가 없다) |
 | `remote` | `origin` | 이 remote 의 URL 에서 `TARGET_HOST` + `TARGET_REPO` 를 바인딩한다 |
-| `--worktree <path>` | 없음 | 모든 git 명령이 `git -C "<path>" ...` 가 되고 push 는 명시적 refspec 을 쓴다. 경로의 생명주기는 호출자(`gh:pr-merge-train`)가 소유한다 |
+| `--worktree <path>` | 없음 | 모든 git 명령이 `git -C "<path>" ...` 가 되고 push 는 명시적 refspec 을 쓴다. 경로의 생명주기는 호출자(`gh-pr:merge-train`)가 소유한다 |
 | `-h` / `--help` / `help` | — | `references/help.md` 를 그대로 출력하고 종료. API 호출 없음 |
 
 ## 동작 단계
@@ -57,6 +57,6 @@ GitHub 이 무엇을 문제 삼고 있는지로 고르는 것이지, 내가 무�
   auto-approve 설정은 사용자의 답이 아니다.
 - Step 5 를 건너뛰지 않는다 — PR 경고를 걷어내는 것이 이 스킬의 존재 이유다.
 - push 가 성공하면 리뷰받은 커밋은 더 이상 head 가 아니므로 낡은 `review-passed`
-  제거는 **필수**다. 반대로 `review-blocked` 는 추가도 제거도 하지 않는다 (#1563).
+  제거는 **필수**다. 반대로 `review-blocked` 는 추가도 제거도 하지 않는다 (dEitY719/dotfiles#1563).
 - `--worktree` 경로를 만들지도 지우지도 않는다. 호출자가 소유한다.
 - 히스토리를 건드리기 전에 항상 `BACKUP_SHA` 를 출력한다.

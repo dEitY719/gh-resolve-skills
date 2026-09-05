@@ -23,9 +23,9 @@ Pick by what GitHub is complaining about, not by what you would rather fix.
 a rebase produces a conflict; `conflict` never reads CI logs; `ci-fail` never
 rebases and never force-pushes.
 
-Adjacent verbs live elsewhere: creating a PR (`gh:pr`), merging one
-(`gh:pr-merge`), reviewing one (`devx:pr-review-all`), and replying to review
-comments (`gh:pr-reply`) are all in other repos of this family. This repo starts
+Adjacent verbs live elsewhere: creating a PR (`gh-pr:create`), merging one
+(`gh-pr:merge`), reviewing one (`gh-verify:review-all`), and replying to review
+comments (`gh-pr:reply`) are all in other repos of this family. This repo starts
 when a PR is blocked and stops when it is mergeable again.
 
 ### Visual guides and worked examples (GitHub Pages)
@@ -42,8 +42,8 @@ Each page is generated from a Markdown source under
 | Need | Why |
 |------|-----|
 | `git` | All three rebase, commit, or push. |
-| `gh`, authenticated per host | Every skill binds `TARGET_HOST` + `TARGET_REPO` from the remote URL and prefixes each API call with `GH_HOST=` (#1403), so GitHub Enterprise remotes work — but only if `gh` is logged into that host. |
-| A checkout on the PR's head branch | Or a detached scratch worktree passed as `--worktree <path>` (`conflict` / `outdated` only), which makes the PR number mandatory. `gh:pr-merge-train` owns that worktree's lifecycle; these skills never create or remove it. |
+| `gh`, authenticated per host | Every skill binds `TARGET_HOST` + `TARGET_REPO` from the remote URL and prefixes each API call with `GH_HOST=` (dEitY719/dotfiles#1403), so GitHub Enterprise remotes work — but only if `gh` is logged into that host. |
+| A checkout on the PR's head branch | Or a detached scratch worktree passed as `--worktree <path>` (`conflict` / `outdated` only), which makes the PR number mandatory. `gh-pr:merge-train` owns that worktree's lifecycle; these skills never create or remove it. |
 | Not the default branch | All three refuse to run on the repo's default branch. |
 
 ## Install
@@ -120,12 +120,12 @@ This repo owns none — deliberately.
   (`{codex,kimi,gemini,antigravity,hermes,opencode}-tools.md`). That repo is
   their sole owner; the other fourteen `*-skills` repos link there rather than
   carrying copies, so one tool rename is one edit, not fifteen
-  (dotfiles #1410 F-5 / NF-2). The only condensed mirror here is
+  (dEitY719/dotfiles#1410 F-5 / NF-2). The only condensed mirror here is
   `.kimi-plugin/plugin.json`'s `skillInstructions`, because Kimi CLI cannot read
   a reference file at load time — it points back to the canonical file.
 - **The reusable CI workflow** is
   [`harness-skills/.github/workflows/skill-check.yml`](https://github.com/dEitY719/harness-skills/blob/main/.github/workflows/skill-check.yml)
-  (#1410 D-10). See [CI](#ci).
+  (dEitY719/dotfiles#1410 D-10). See [CI](#ci).
 
 ## Layout
 
@@ -188,13 +188,13 @@ These skills were extracted from
 [`dEitY719/dotfiles`](https://github.com/dEitY719/dotfiles)
 (`claude/skills/gh-pr-resolve-{ci-fail,conflict,outdated}`) as a content
 snapshot at source commit `b5f7fd1347e56c9a70e9b67ba15e7c5b7f1cf9ac` — no history
-rewriting. The dotfiles copies remain in place; they are removed in Phase 4 of
-that repo's migration. Behaviour is unchanged from the snapshot: only the
-namespace moved, from `gh:pr-resolve-*` to `gh-resolve:*`, and the two oversized
-`SKILL.md` files had detail relocated into their own `references/` to fit the
-100-line progressive-disclosure limit.
+rewriting. The dotfiles copies were removed in Phase 4 of that repo's migration,
+so that path no longer resolves there. Behaviour is unchanged from the snapshot:
+only the namespace moved, from `gh:pr-resolve-*` to `gh-resolve:*`, and the two
+oversized `SKILL.md` files had detail relocated into their own `references/` to
+fit the 100-line progressive-disclosure limit.
 
-This is Phase 2 of the dotfiles #1410 migration (tracking issue #1660).
+This is Phase 2 of the dEitY719/dotfiles#1410 migration (tracking issue dEitY719/dotfiles#1660).
 `packaging-skills` was Phase 0; `harness-skills` — the sibling that owns the
 shared assets this repo links to — and `pkm-skills` were Phase 1.
 

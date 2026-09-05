@@ -1,4 +1,4 @@
-# gh-resolve:outdated — GitHub target binding (#1403, #1407)
+# gh-resolve:outdated — GitHub target binding (dEitY719/dotfiles#1403, dEitY719/dotfiles#1407)
 
 Run this in Step 1, **before any `gh` call**.
 
@@ -32,7 +32,7 @@ export TARGET_REPO TARGET_HOST
 - An unknown remote stops the run with `git remote -v` — never a silent
   `origin` fallback, which would mask a typo and target the wrong repo.
 - Never continue with an empty `TARGET_HOST` — that is exactly the silent
-  misroute state of #1403.
+  misroute state of dEitY719/dotfiles#1403.
 - The `_SC` lookup order (`DOTFILES_ROOT` -> `CLAUDE_PLUGIN_ROOT`/`$PWD` -> stop)
   is the convention in
   [`harness-skills/references/plugin-root.md`](https://github.com/dEitY719/harness-skills/blob/main/references/plugin-root.md) — the SSOT, not a local
@@ -82,7 +82,7 @@ explicit `<N>` and therefore keeps `--repo "$TARGET_REPO"`.
 `--repo <owner>/<repo>` carries no host, so a bare `gh` resolves that slug
 against gh CLI's own `gh repo set-default` rather than git's `$REMOTE`. On a
 dual-host login (github.com + a GHES instance) the two can disagree and `gh`
-then hits the wrong server **with no error** — #1403 is the case where an OPEN
+then hits the wrong server **with no error** — dEitY719/dotfiles#1403 is the case where an OPEN
 issue came back as "not found".
 
 A misrouted `gh pr view` here is worse than a bad read: Step 2 triages

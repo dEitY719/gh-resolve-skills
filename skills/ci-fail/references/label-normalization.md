@@ -51,14 +51,14 @@ Pass --label-variant '<variant>' or omit the flag to use 'CI fail'.
 ## Why a separate file (not inline in SKILL.md)
 
 The table is content (data), not workflow (procedure). Progressive
-Disclosure (skill:check Check 2) says workflow phases stay in SKILL.md
+Disclosure (authoring:skill-check Check 2) says workflow phases stay in SKILL.md
 and detail moves to `references/`. The table will also grow over time
 as new variants appear in the wild — keeping it here means SKILL.md
 doesn't churn for label-name additions.
 
 ## Future: external SSOT yaml
 
-Open Question from issue #673: should this table move to
+Open Question from issue dEitY719/dotfiles#673: should this table move to
 `.gh-pr-labels.yml` at the repo root so AgentToolbox / dotfiles / etc.
 can each declare their own label conventions? Defer until a second
 repo with different label naming actually appears. KISS — internal

@@ -1,7 +1,7 @@
 # Step 4 push shapes and the Step 5 report
 
 Extracted from `SKILL.md` when this skill moved into `gh-resolve-skills`
-(dotfiles #1660). Read "Push" before running Step 4 in `--worktree` mode, and
+(dEitY719/dotfiles#1660). Read "Push" before running Step 4 in `--worktree` mode, and
 "Report" when printing the Step 5 result.
 
 ## Push
@@ -33,8 +33,8 @@ invalidate the stale `review-passed` verdict. Record whether the push succeeded.
 
 ```
 [OK] PR #<N> out-of-date 해소됨 · <new-sha> push 됨.
-Next: /gh-pr-reply <N>  # 리뷰어 회신 또는 CI 결과 대기
+Next: /gh-pr:reply <N>  # 리뷰어 회신 또는 CI 결과 대기
 ```
 
 ai-metrics footer follows the sister-skill pattern; skip when
-`GH_DISABLE_AI_METRICS=1` (#399).
+`GH_DISABLE_AI_METRICS=1` (dEitY719/dotfiles#399).

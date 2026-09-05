@@ -25,7 +25,7 @@ recoverable.
 Triggered only when preflight detects a non-empty working tree
 (`git status --porcelain` prints any line). In `--worktree` mode that trigger
 can never fire *for a freshly created scratch worktree this round* — the
-caller (`gh:pr-merge-train`) just ran `git worktree add`, and nothing has
+caller (`gh-pr:merge-train`) just ran `git worktree add`, and nothing has
 written to it yet — so the whole stash flow is skipped, and the final
 report's `Stash:` line is omitted. This is distinct from a worktree the
 caller is *reusing* after an interrupted prior round (a crashed process, or
@@ -108,7 +108,7 @@ Decide whether to merge those in or discard them, then re-run this skill.
 ## Never run on the default branch
 
 All three skills carry this refusal, each with its own exit code; `#10` is the
-anchor that ties the copies together, the way `#1403` ties the three
+anchor that ties the copies together, the way `dEitY719/dotfiles#1403` ties the three
 `github-target.md` copies. Change one, grep the number and change the others.
 
 ```bash

@@ -4,6 +4,7 @@ description: >-
   Rebase-resolve a GitHub PR's "branch has conflicts" warning. Use for
   /gh-resolve:conflict, "PR conflict 해결", "리베이스로 컨플릭트 풀어".
   Not a clean base sync (gh-resolve:outdated) or a CI fix (gh-resolve:ci-fail).
+license: MIT
 allowed-tools: Bash, Read, Edit, Write, Grep, Glob
 metadata:
   model_recommendation:
@@ -28,14 +29,14 @@ Positional args: `[pr-number] [remote]`. Both optional. One flag:
 `[--worktree <path>]`.
 
 - `remote` — default `origin`; missing → `git remote -v` and stop. Bind
-  `TARGET_HOST` + `TARGET_REPO` from that one remote URL **before any `gh` call** per `references/github-target.md` (#1403).
+  `TARGET_HOST` + `TARGET_REPO` from that one remote URL **before any `gh` call** per `references/github-target.md` (dEitY719/dotfiles#1403).
 - `pr-number` — if omitted, auto-detect via `GH_HOST="$TARGET_HOST" gh pr view
   --json number,headRefName,baseRefName,url,mergeable` on the current branch.
   No PR for the branch → stop. No `--repo` on this one call — `gh` rejects
   `--repo` without a PR argument; `references/github-target.md` → "Exception".
 - `--worktree <path>` — every git command becomes `git -C "<path>" ...` and the
   push takes an explicit refspec; makes `pr-number` **mandatory**. Owned by
-  `gh:pr-merge-train`. Details: `references/rebase-flow.md` → "`--worktree` mode".
+  `gh-pr:merge-train`. Details: `references/rebase-flow.md` → "`--worktree` mode".
 
 **Mergeable preflight** — immediately after resolving `PR_NUMBER`, run the
 host-pinned `gh pr view --json mergeable` short-circuit per `references/rebase-flow.md`
@@ -87,7 +88,7 @@ Then run the four post-verify helpers (each soft-fail) exactly as
 `references/step5-helpers.md` specifies: remove the `conflict` label, return the
 board card to `In review`, post the ai-metrics comment, and drop the stale
 `review-passed` verdict. That last one is gated on Step 4's push rather than on
-`mergeable`. Never touch `review-blocked` here (#1563).
+`mergeable`. Never touch `review-blocked` here (dEitY719/dotfiles#1563).
 
 ## Constraints
 

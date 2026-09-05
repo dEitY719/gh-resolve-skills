@@ -59,6 +59,6 @@ GitHub 이 머지 버튼을 회색으로 만드는 세 가지 이유 중 **requi
 - 없는 라벨을 자동 생성하지 않는다 (404 는 soft-fail).
 - auto-stash 하지 않는다. 실행 전 워킹 트리가 깨끗해야 한다.
 - `review-passed` / `review-blocked` 를 추가하지도, `review-blocked` 를 제거하지도
-  않는다 (#1563).
-- 모든 `gh` 호출은 `GH_HOST=` 로 호스트 고정된다 (#1403). 이걸 빠뜨리면 GHES
+  않는다 (dEitY719/dotfiles#1563).
+- 모든 `gh` 호출은 `GH_HOST=` 로 호스트 고정된다 (dEitY719/dotfiles#1403). 이걸 빠뜨리면 GHES
   repo 요청이 `github.com` 으로 나간다.

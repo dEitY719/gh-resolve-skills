@@ -19,8 +19,8 @@
 /gh-resolve:outdated -h           # this help
 ```
 
-`--worktree` exists for `gh:pr-merge-train`: the PR's head branch is usually
-already checked out in the worktree `gh:issue-flow` opened it from, so the train
+`--worktree` exists for `gh-pr:merge-train`: the PR's head branch is usually
+already checked out in the worktree `gh-flow:issue` opened it from, so the train
 hands over a detached scratch worktree it created and will destroy. The push
 then uses an explicit `HEAD:refs/heads/<head>` refspec, since a detached HEAD
 names no branch.
@@ -99,5 +99,5 @@ names no branch.
 - `gh-resolve:ci-fail` — sister skill for `CI fail` label. Reads
   failing check logs, fixes locally, pushes (no force), removes the
   label last.
-- `gh:pr-merge` — once the banner clears, merge with rebase/squash/merge.
-- `gh:pr-reply` — reply to review comments after syncing the base.
+- `gh-pr:merge` — once the banner clears, merge with rebase/squash/merge.
+- `gh-pr:reply` — reply to review comments after syncing the base.

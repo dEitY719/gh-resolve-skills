@@ -21,23 +21,25 @@ different push policy (`ci-fail` fast-forwards; the other two rewrite published
 history), and a different stopping rule. Merging them would blur the one thing
 that keeps them safe: knowing which blocker you are actually looking at.
 
-Adjacent verbs stay out. Creating a PR (`gh:pr`), merging one (`gh:pr-merge`),
-reviewing one (`devx:pr-review-all`), and replying to review comments
-(`gh:pr-reply`) all live in other repos of this family. This repo starts when a
+Adjacent verbs stay out. Creating a PR (`gh-pr:create`), merging one (`gh-pr:merge`),
+reviewing one (`gh-verify:review-all`), and replying to review comments
+(`gh-pr:reply`) all live in other repos of this family. This repo starts when a
 PR is blocked and stops when it is mergeable again.
 
 The skills were extracted from `dEitY719/dotfiles`
 (`claude/skills/gh-pr-resolve-{ci-fail,conflict,outdated}`) as a content
 snapshot at source commit `b5f7fd1347e56c9a70e9b67ba15e7c5b7f1cf9ac` — no history
-rewriting. The dotfiles copies remain in place; they are removed in Phase 4 of
-that repo's migration plan (#1410 NF-1 / NF-3). This is Phase 2 of dotfiles
-#1410 (tracking issue #1660); `packaging-skills` was Phase 0, and
-`harness-skills` and `pkm-skills` were Phase 1.
+rewriting. The dotfiles copies were removed in Phase 4 of that repo's migration
+plan (dEitY719/dotfiles#1410 NF-1 / NF-3), so that path no longer resolves there.
+This is Phase 2 of dEitY719/dotfiles#1410 (tracking issue dEitY719/dotfiles#1660);
+`packaging-skills` was Phase 0, and `harness-skills` and `pkm-skills` were
+Phase 1.
 
 The `gh-pr-resolve-` prefix was stripped on the way in. The plugin name already
 supplies the namespace at invocation time, so `/gh:pr-resolve-conflict` became
-`/gh-resolve:conflict` (#1410 §4, issue #1660 F-2). Do not reintroduce the
-prefix, and do not reintroduce the old dash-form aliases.
+`/gh-resolve:conflict` (dEitY719/dotfiles#1410 §4, issue
+dEitY719/dotfiles#1660 F-2). Do not reintroduce the prefix, and do not
+reintroduce the old dash-form aliases.
 
 ## Layout: root manifests, one flat `skills/`
 
@@ -69,7 +71,7 @@ The OpenCode entry point's filename is load-bearing: it must be
 
 This repo owns none. Both belong to `dEitY719/harness-skills`:
 
-**1. Per-harness tool mappings** (`references/*-tools.md` there, dotfiles #1410
+**1. Per-harness tool mappings** (`references/*-tools.md` there, dEitY719/dotfiles#1410
 F-5). Do not create a `references/` directory at this repo's root — the only
 `references/` here are the per-skill ones under `skills/<name>/`. If a doc here
 needs a mapping, link to
@@ -93,9 +95,9 @@ should apply here on the next run, which is the whole point.
   supplies the `gh-resolve:` prefix at invocation time.
 - **Invocation form in prose is namespaced.** Body text referring to a skill in
   this repo as a command writes `/gh-resolve:conflict`.
-- **Cross-repo references keep their own namespace.** `gh:pr-merge`, `gh:pr`,
-  `gh:commit`, `gh:pr-reply`, `gh:pr-merge-train`, `gh:issue-flow`, and
-  `devx:pr-review-all` live in `dEitY719/dotfiles` or other repos of this family.
+- **Cross-repo references keep their own namespace.** `gh-pr:merge`, `gh-pr:create`,
+  `gh-pr:commit`, `gh-pr:reply`, `gh-pr:merge-train`, `gh-flow:issue`, and
+  `gh-verify:review-all` live in other repos of this family.
   Leave them exactly as written; only siblings inside `skills/` take the
   `gh-resolve:` prefix.
 - **Progressive disclosure.** `SKILL.md` stays at or under 100 lines (CI
@@ -128,10 +130,10 @@ should apply here on the next run, which is the whole point.
   - None adds `review-passed` / `review-blocked`, and none removes
     `review-blocked` — no skill here has evidence the blockers were addressed.
     Dropping a stale `review-passed` after a successful force-push is mandatory
-    (#1563).
+    (dEitY719/dotfiles#1563).
 - **Host pinning is not optional.** Every skill binds `TARGET_HOST` +
   `TARGET_REPO` from the remote URL before any `gh` call and prefixes each call
-  with `GH_HOST=` (#1403). Dropping the prefix sends a GHES repo's request to
+  with `GH_HOST=` (dEitY719/dotfiles#1403). Dropping the prefix sends a GHES repo's request to
   `github.com`. The one documented exception is the branch-detecting
   `gh pr view` with no PR argument, which cannot take `--repo`.
 
@@ -141,7 +143,7 @@ The version appears in seven manifests: `.claude-plugin/marketplace.json`
 (`plugins[0].version`), `.claude-plugin/plugin.json`, `.codex-plugin/plugin.json`,
 `.kimi-plugin/plugin.json`, `.hermes-plugin/plugin.yaml`,
 `gemini-extension.json`, and `package.json`. CI checks that they agree — bump
-all of them together. Versioning is independent per repo (#1410 D-9); this repo
+all of them together. Versioning is independent per repo (dEitY719/dotfiles#1410 D-9); this repo
 does not move in lockstep with its siblings.
 
 ## No emojis

@@ -3,7 +3,8 @@
 Detail companion for SKILL.md Steps 1, 4, 5, and 7.
 
 Every `gh` call below assumes `TARGET_HOST` / `TARGET_REPO` are already bound
-and exported by Step 1 per `references/github-target.md` (#1403, #1407).
+and exported by Step 1 per `references/github-target.md`
+(dEitY719/dotfiles#1403, dEitY719/dotfiles#1407).
 
 ## Preconditions (Step 1)
 
@@ -108,7 +109,7 @@ push lands.
 
 The label-removal block uses REST DELETE (not `gh pr edit
 --remove-label`) for the same classic-Projects silent-fail issue
-documented in `gh-resolve:conflict` (#326 Bug B).
+documented in `gh-resolve:conflict` (dEitY719/dotfiles#326 Bug B).
 
 ```bash
 GH_HOST="$TARGET_HOST" gh api -X DELETE \
@@ -118,11 +119,12 @@ GH_HOST="$TARGET_HOST" gh api -X DELETE \
   || echo "[WARN] \`CI fail\` 라벨 제거 실패 (이미 없거나 권한 없음 — 수동 제거 필요할 수 있음)"
 ```
 
-`gh api` accepts no `--repo` flag (#658), so the repo slug goes into the path
+`gh api` accepts no `--repo` flag (dEitY719/dotfiles#658), so the repo slug goes into the path
 as `$TARGET_REPO` — bound in Step 1 from the remote URL. Never leave a literal
 `{owner}/{repo}` here: that makes `gh` fall back to its own `gh repo set-default`
 instead of git's remote, which on a dual-host login silently DELETEs a label on
-the wrong server (#1403 / #1407). `GH_HOST="$TARGET_HOST"` pins that server.
+the wrong server (dEitY719/dotfiles#1403 / dEitY719/dotfiles#1407).
+`GH_HOST="$TARGET_HOST"` pins that server.
 URL-encode any space or special char in the label name (e.g. `CI%20fail`).
 
 ### ai-metrics PR comment (soft-fail)
@@ -152,7 +154,7 @@ fi
 - `~2 h` — `fix` lookup from `gh-issue-create/references/metrics-baseline.md`.
 - soft-fail: comment failure does NOT block the success report.
 - Glyph note: the rendered footer on GitHub uses the standard ai-metrics
-  glyphs (the #317 F-2 exception — see `gh-add-ai-metrics`, the footer SSOT).
+  glyphs (the dEitY719/dotfiles#317 F-2 exception — see `gh-add-ai-metrics`, the footer SSOT).
   They are omitted here to keep references/ emoji-free; substitute them at
   render time to match the standard card.
 

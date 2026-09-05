@@ -1,7 +1,8 @@
 # gh-resolve:conflict — Rebase Flow
 
 Every `gh` call below assumes `TARGET_HOST` / `TARGET_REPO` are already bound
-and exported by Step 1 per `references/github-target.md` (#1403, #1407).
+and exported by Step 1 per `references/github-target.md`
+(dEitY719/dotfiles#1403, dEitY719/dotfiles#1407).
 
 ## `--worktree` mode
 
@@ -12,8 +13,8 @@ from a checkout. The push additionally switches to an explicit refspec (see
 "Push"). No `cd`, ever: leaving the session's own working directory alone is
 the reason the flag exists.
 
-The path is a detached scratch worktree `gh:pr-merge-train` created for exactly
-this call and will remove afterwards (#1493) — this skill never creates or
+The path is a detached scratch worktree `gh-pr:merge-train` created for exactly
+this call and will remove afterwards (dEitY719/dotfiles#1493) — this skill never creates or
 deletes it.
 
 Without the flag every command below is read literally, unchanged.

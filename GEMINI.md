@@ -23,11 +23,11 @@ front.
 
 - `git`, and `gh` authenticated for the host the remote points at. Each skill
   binds `TARGET_HOST` + `TARGET_REPO` from the remote URL **before any `gh`
-  call** and prefixes every call with `GH_HOST=` (#1403). A GHES remote resolves
-  to the wrong server without that prefix, so never drop it.
+  call** and prefixes every call with `GH_HOST=` (dEitY719/dotfiles#1403). A GHES
+  remote resolves to the wrong server without that prefix, so never drop it.
 - A checkout on the PR's head branch — or, for `conflict` and `outdated`, a
   detached scratch worktree passed as `--worktree <path>`. That flag makes the
-  PR number mandatory and is normally supplied by `gh:pr-merge-train`, which
+  PR number mandatory and is normally supplied by `gh-pr:merge-train`, which
   owns the worktree's creation and removal.
 - The current branch must not be the repo's default branch. All three refuse.
 
@@ -82,4 +82,4 @@ On Antigravity read `antigravity-tools.md` in that same directory instead —
 - None of them adds `review-passed` or `review-blocked`, and none removes
   `review-blocked` — no skill here has evidence the blockers were addressed.
   Dropping a stale `review-passed` after a successful force-push is mandatory
-  (#1563).
+  (dEitY719/dotfiles#1563).

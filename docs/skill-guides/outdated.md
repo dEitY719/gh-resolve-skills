@@ -32,7 +32,7 @@
 |-------------|--------|------|
 | `pr-number` | 현재 브랜치에서 자동 탐지 | `--worktree` 를 쓰면 **필수**가 된다 |
 | `remote` | `origin` | 이 remote 의 URL 에서 `TARGET_HOST` + `TARGET_REPO` 를 바인딩한다 |
-| `--worktree <path>` | 없음 | 모든 git 명령을 `<path>` 에서 실행하고 push 에 명시적 refspec 을 쓴다. 경로는 호출자(`gh:pr-merge-train`)가 소유 |
+| `--worktree <path>` | 없음 | 모든 git 명령을 `<path>` 에서 실행하고 push 에 명시적 refspec 을 쓴다. 경로는 호출자(`gh-pr:merge-train`)가 소유 |
 | `-h` / `--help` / `help` | — | `references/help.md` 를 그대로 출력하고 종료. API 호출 없음 |
 
 ### 종료 코드
@@ -66,6 +66,6 @@
   멈춘다 (manual handoff).
 - auto-stash 하지 않는다. 클린 트리가 전제다.
 - `review-passed` / `review-blocked` 를 추가하지 않고 `review-blocked` 를 제거하지도
-  않는다. push 성공 후 낡은 `review-passed` 제거만 필수다 (#1563) — 리뷰되지 않은
+  않는다. push 성공 후 낡은 `review-passed` 제거만 필수다 (dEitY719/dotfiles#1563) — 리뷰되지 않은
   head 에 남은 낡은 판정이 바로 이 규칙이 고치는 버그다.
 - `--worktree` 경로를 만들지도 지우지도 않는다.

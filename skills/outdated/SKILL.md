@@ -5,6 +5,7 @@ description: >-
   conflicts. Use for /gh-resolve:outdated, "PR base out-of-date",
   "base 변경됐는데 sync". Conflicts → gh-resolve:conflict; CI red →
   gh-resolve:ci-fail.
+license: MIT
 allowed-tools: Bash, Read
 metadata:
   model_recommendation:
@@ -28,11 +29,11 @@ Record `START_TS=$(date +%s)` immediately for Step 5.
 Positional `[pr-number] [remote]`, both optional (`remote` defaults to
 `origin`). One flag, `[--worktree <path>]`, runs every git command in `<path>`
 instead of the current checkout and makes `pr-number` **mandatory** — the caller
-(`gh:pr-merge-train`) hands over a detached worktree with no branch to
+(`gh-pr:merge-train`) hands over a detached worktree with no branch to
 auto-detect a PR from. Without the flag the behaviour is exactly what it was.
 
 Bind `TARGET_HOST` + `TARGET_REPO` from the remote's URL **before any `gh`
-call** (`references/github-target.md`, #1403), check `gh` auth, and enforce the
+call** (`references/github-target.md`, dEitY719/dotfiles#1403), check `gh` auth, and enforce the
 hard preconditions (git repo · not default branch · clean tree · no in-progress
 rebase). Arg table, exit codes, and which preconditions `--worktree` mode drops
 and why: `references/preflight.md`. Capture `BACKUP_SHA=$(git rev-parse HEAD)`
@@ -83,10 +84,10 @@ Re-read `--json mergeable,mergeStateStatus,url` and interpret per
 actually succeeded, drop the `review-passed` label per
 `references/verdict-label-removal.sh.md` (soft-fail). Never touch
 `review-blocked` — this skill holds no evidence the blockers were addressed —
-and never *add* either label; `devx:pr-review-all` owns that (#1563).
+and never *add* either label; `gh-verify:review-all` owns that (dEitY719/dotfiles#1563).
 
 Report banner and the ai-metrics footer (skipped when `GH_DISABLE_AI_METRICS=1`,
-#399): `references/push-and-report.md` → "Report".
+dEitY719/dotfiles#399): `references/push-and-report.md` → "Report".
 
 ## Constraints
 
