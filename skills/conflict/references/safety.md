@@ -113,9 +113,8 @@ same way; if this call ever changes, change it there too.
 
 ```bash
 CURRENT=$(git rev-parse --abbrev-ref HEAD)
-DEFAULT=$(GH_HOST="$TARGET_HOST" gh repo view "$TARGET_REPO" \
-    --json defaultBranchRef -q .defaultBranchRef.name) || DEFAULT=""
-if [ -z "$DEFAULT" ]; then
+if ! DEFAULT=$(GH_HOST="$TARGET_HOST" gh repo view "$TARGET_REPO" \
+        --json defaultBranchRef -q .defaultBranchRef.name) || [ -z "$DEFAULT" ]; then
     echo "refuse: could not resolve the default branch of $TARGET_REPO."
     echo "the guard fails closed — fix the gh call or the Step 1 target binding."
     exit 1
@@ -134,22 +133,29 @@ no `--repo` flag — `--repo "$TARGET_REPO"`, copied from the neighbouring
 `references/github-target.md` names it alongside `gh api` as an exception to the
 flag rule; read that before adding another `gh` call to this skill.
 
-**`|| DEFAULT=""` and the empty check are both load-bearing (#10).** Without
-them the guard could not fire in the one case it exists for: the failed lookup
-left `DEFAULT` empty, `[ "main" = "" ]` was false, and the run continued to
-Step 4's `git push --force-with-lease "$REMOTE" HEAD` — force-pushing the
-default branch with a perfectly satisfied lease. Any failure of the lookup, for
-any reason, must stop the run rather than fall through.
+**The first `if` is the fix; do not reduce it to an emptiness test (#10).**
+Before it existed the guard could not fire in the one case it exists for: the
+failed lookup left `DEFAULT` empty, `[ "main" = "" ]` was false, and the run
+continued to Step 4's `git push --force-with-lease "$REMOTE" HEAD` —
+force-pushing the default branch with a perfectly satisfied lease. Any failure
+of the lookup, for any reason, must stop the run rather than fall through.
 
-Check the **exit status**, never just the string. An emptiness test alone
-happens to work for `gh repo view`, which writes its error to stderr and leaves
-stdout empty, but it silently fails open for `gh api`: on an HTTP error `gh api`
-skips `--jq` and echoes the raw response body to **stdout**, so
+`! DEFAULT=$(...)` is the **exit status**; `[ -z "$DEFAULT" ]` is the string.
+Both are needed, and the status is the load-bearing half. An emptiness test
+alone happens to work for `gh repo view`, which writes its error to stderr and
+leaves stdout empty, but it fails open for a command that prints on failure —
+`gh api`, the tempting alternative here, skips `--jq` on an HTTP error and
+echoes the raw response body to **stdout**, so
 `DEFAULT=$(gh api "repos/$TARGET_REPO" --jq .default_branch)` on a 404 is
-`{"message":"Not Found",...}` — non-empty, never equal to any branch name, and
-straight through both `if`s. Leaning on what a command happens to leave on
-stdout when it fails is the same class of assumption that made this guard inert;
-the exit status is the thing that is actually contractual.
+`{"message":"Not Found",...}`: non-empty, never equal to any branch name, and
+straight through. Leaning on what a command happens to leave on stdout when it
+fails is the same class of assumption that made this guard inert.
+
+Write the status check in the `if` rather than as a trailing `|| DEFAULT=""`.
+Both are correct — the `||` form consumes the status exactly the same way — but
+two independent reviewers read the trailing form as *discarding* the status
+(PR #11), and a safety guard that reads as unsafe gets "corrected" back into a
+hole. The explicit form cannot be misread.
 
 The default branch should never be force-pushed by this skill. If the
 PR's head IS the default branch (cross-fork PR where the head came from
@@ -160,7 +166,7 @@ In `--worktree` mode `git -C "<path>" rev-parse --abbrev-ref HEAD` answers
 not dropped, it moves to the thing that is actually at risk: substitute
 `HEAD_REF` (the PR's `headRefName`, which the push refspec targets) for
 `CURRENT` and refuse on a match. Only the compared value changes — the
-`DEFAULT` lookup and its empty-check refusal run unchanged, so an errored
+`DEFAULT` lookup and its unresolved-refusal `if` run unchanged, so a failed
 lookup stops the worktree path too.
 
 ## Recovery cheat-sheet (for the final report)

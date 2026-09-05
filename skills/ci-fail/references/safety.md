@@ -12,7 +12,7 @@ Run as a parallel batch. Any failure → stop with the matching message.
 | Check | How | Fail message |
 |---|---|---|
 | Inside a git repo | `git rev-parse --show-toplevel` | `[FAIL] not inside a git repo` |
-| Default branch resolvable | `DEFAULT=$(GH_HOST="$TARGET_HOST" gh repo view "$TARGET_REPO" --json defaultBranchRef -q .defaultBranchRef.name) \|\| DEFAULT=""` — must exit 0 and be non-empty | `[FAIL] could not resolve the default branch of <TARGET_REPO> — refusing` |
+| Default branch resolvable | `if ! DEFAULT=$(GH_HOST="$TARGET_HOST" gh repo view "$TARGET_REPO" --json defaultBranchRef -q .defaultBranchRef.name) \|\| [ -z "$DEFAULT" ]; then` — refuse. The exit status is checked, not just the string | `[FAIL] could not resolve the default branch of <TARGET_REPO> — refusing` |
 | Not on default branch | `git rev-parse --abbrev-ref HEAD` != `$DEFAULT` | `[FAIL] refuses on default branch (<DEFAULT>) — check out the PR's head branch first` |
 | Working tree clean | `git status --porcelain` empty | `[FAIL] working tree dirty — commit/stash your edits first; this skill never auto-stashes` |
 | No in-progress rebase / merge / cherry-pick | `git rev-parse --git-path rebase-merge` / `rebase-apply` / `MERGE_HEAD` / `CHERRY_PICK_HEAD` / `REVERT_HEAD` all absent | `[FAIL] in-progress <name> at <marker> — finish or abort first` |

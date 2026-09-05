@@ -20,11 +20,15 @@ Without the flag every command below is read literally, unchanged.
 
 ## Preconditions (parallel batch)
 
-Run all four in a single tool message. Any failure → stop immediately.
+Run all five in a single tool message. Any failure → stop immediately —
+including the `gh repo view` line, whose output is `DEFAULT` for the stop table
+below and whose exit status is checked, never assumed (`safety.md` → "Never run
+on the default branch" is the executable form).
 
 ```bash
 git rev-parse --is-inside-work-tree
 git rev-parse --abbrev-ref HEAD
+# binds DEFAULT; a non-zero exit here is a hard stop, not an empty DEFAULT (#10)
 GH_HOST="$TARGET_HOST" gh repo view "$TARGET_REPO" --json defaultBranchRef -q .defaultBranchRef.name
 git status --porcelain
 ls "$(git rev-parse --git-path rebase-merge)" \
