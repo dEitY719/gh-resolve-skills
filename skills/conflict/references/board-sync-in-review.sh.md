@@ -16,6 +16,7 @@ if [ "$MERGEABLE" = "MERGEABLE" ]; then
     # collapsing into the `|| echo [WARN]` branch (which falsely suggests
     # a board sync was attempted).
     _HELPER="${SHELL_COMMON:-$HOME/dotfiles/shell-common}/functions/gh_project_status.sh"
+    [ -f "$_HELPER" ] || { _HELPER="${CLAUDE_PLUGIN_ROOT:-}/lib/vendor/shell-common/functions/gh_project_status.sh"; export SHELL_COMMON="${CLAUDE_PLUGIN_ROOT:-}/lib/vendor/shell-common"; }
     if [ -r "$_HELPER" ]; then
         . "$_HELPER"
         if ! command -v _gh_project_status_sync >/dev/null 2>&1; then
@@ -28,9 +29,17 @@ if [ "$MERGEABLE" = "MERGEABLE" ]; then
         else
             echo "[WARN] 보드 sync 실패 — 카드 수동 이동 필요할 수 있음"
         fi
+    else
+        echo "[WARN] board sync helper unavailable — card not moved"
     fi
 fi
 ```
+
+헬퍼 조회는 2단이다 (#1): dotfiles 체크아웃이 없는 머신에서는 Step 1 이
+`SHELL_COMMON` 을 vendor 디렉터리로 export 해두므로 1단(`${SHELL_COMMON:-...}`)
+이 **반드시** 빗나간다 — 그래서 `CLAUDE_PLUGIN_ROOT` 2단으로 다시 잡아야
+`lib/vendor/shell-common/functions/gh_project_status.sh` 에 닿는다. 그 vendor
+사본까지 없으면 `else` 가 `[WARN]` 을 찍는다 — soft-fail 이되 조용하지는 않게.
 
 `--repo "$TARGET_REPO"` 는 Step 1 이 해소한 remote 를 명시로 넘긴다 (#1405) —
 빼면 헬퍼가 `gh repo view` 로 폴백하는데, 이는 git origin 이 아니라
