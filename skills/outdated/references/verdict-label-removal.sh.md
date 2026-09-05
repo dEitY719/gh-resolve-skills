@@ -53,7 +53,9 @@ else
 fi
 ```
 
-Soft-fail 이다: 실패해도 Step 5 의 검증/보고는 그대로 진행한다.
+Soft-fail 이다: 실패해도 Step 5 의 검증/보고는 그대로 진행한다. shell-common 을
+못 찾아 위 블록이 non-zero 로 멈추는 경우도 마찬가지다 — 그 종료 코드 자체가
+호출자가 흡수하는 soft-fail 신호다.
 
 헬퍼 조회 순서(`SHELL_COMMON`/dotfiles → `CLAUDE_PLUGIN_ROOT`/`$PWD` → 중단)의
 SSOT 는 [`harness-skills/references/plugin-root.md`](https://github.com/dEitY719/harness-skills/blob/main/references/plugin-root.md) 다. 두 번째

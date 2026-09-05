@@ -51,6 +51,10 @@ else
 fi
 ```
 
+Soft-fail 이다: shell-common 을 못 찾아 위 블록이 non-zero 로 멈추더라도 그 종료
+코드 자체가 호출자(Step 5 의 soft-fail 래퍼)가 흡수하는 신호이고, 리베이스
+검증/보고는 그대로 진행한다.
+
 헬퍼 조회 순서(`SHELL_COMMON`/dotfiles → `CLAUDE_PLUGIN_ROOT`/`$PWD` → 중단)의
 SSOT 는 [`harness-skills/references/plugin-root.md`](https://github.com/dEitY719/harness-skills/blob/main/references/plugin-root.md) 다. 두 번째
 `[ -f ]` 는 중복이 아니라 고른 단을 증명하는 단계이고, `export` 는 그 증명
