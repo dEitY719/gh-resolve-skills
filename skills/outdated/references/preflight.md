@@ -26,16 +26,28 @@ Positional args: `[pr-number] [remote]`, both optional. One flag:
 - clean working tree (no auto-stash)
 - no in-progress rebase / merge / cherry-pick
 
-Do not hand-roll the default-branch check. Run the block in
-`gh-resolve:conflict`'s `references/safety.md` → "Never run on the default
-branch" — the SSOT for all three skills — substituting this skill's exit 2 for
-its `exit 1`. Two parts of it are load-bearing, and are why it is referenced
-rather than restated (#10): `$TARGET_REPO` is **positional**
-(`gh repo view "$TARGET_REPO" --json defaultBranchRef -q .defaultBranchRef.name`),
-never `--repo` — that flag does not exist on `gh repo view` and the call fails
-outright; and the lookup's **exit status** is checked in the guard's first
-`if`, so a failed resolve refuses instead of falling through. Skip either and the one branch this skill
-must never `--force-with-lease` becomes the one branch the guard cannot catch.
+The default-branch check in full (#10) — the repo is **positional**, and a
+failed lookup is itself a refusal:
+
+```bash
+CURRENT=$(git rev-parse --abbrev-ref HEAD)
+if ! DEFAULT=$(GH_HOST="$TARGET_HOST" gh repo view "$TARGET_REPO" \
+        --json defaultBranchRef -q .defaultBranchRef.name) || [ -z "$DEFAULT" ]; then
+    echo "[FAIL] could not resolve the default branch of $TARGET_REPO"
+    exit 2
+fi
+if [ "$CURRENT" = "$DEFAULT" ]; then
+    echo "[FAIL] cannot run on default branch ($DEFAULT)"
+    exit 2
+fi
+```
+
+`gh repo view` has no `--repo` flag; passing one exits 1 and used to leave
+`DEFAULT` empty, so `[ "main" = "" ]` waved the one branch this skill must
+never `--force-with-lease` straight through. Same refusal in
+`gh-resolve:conflict` and `gh-resolve:ci-fail`; grep `#10` before changing it.
+In `--worktree` mode compare the PR's `headRefName` instead of `CURRENT` — the
+lookup and its refusal are unchanged.
 
 Capture `BACKUP_SHA=$(git rev-parse HEAD)` and print it for
 `git reset --hard <sha>` recovery.

@@ -107,9 +107,9 @@ Decide whether to merge those in or discard them, then re-run this skill.
 
 ## Never run on the default branch
 
-This block is the SSOT for the refusal. `gh-resolve:ci-fail` and
-`gh-resolve:outdated` state the same precondition and resolve `DEFAULT` the
-same way; if this call ever changes, change it there too.
+All three skills carry this refusal, each with its own exit code; `#10` is the
+anchor that ties the copies together, the way `#1403` ties the three
+`github-target.md` copies. Change one, grep the number and change the others.
 
 ```bash
 CURRENT=$(git rev-parse --abbrev-ref HEAD)
@@ -126,36 +126,22 @@ if [ "$CURRENT" = "$DEFAULT" ]; then
 fi
 ```
 
-**`$TARGET_REPO` is positional here, not `--repo` (#10).** `gh repo view` is the
-one sub-command in this skill that takes the repository as an argument and has
-no `--repo` flag — `--repo "$TARGET_REPO"`, copied from the neighbouring
-`gh pr view` calls, exits 1 with `unknown flag: --repo` on every invocation.
-`references/github-target.md` names it alongside `gh api` as an exception to the
-flag rule; read that before adding another `gh` call to this skill.
+`$TARGET_REPO` is **positional**: `gh repo view` has no `--repo` flag (#10).
+The old `--repo "$TARGET_REPO"`, copied from the neighbouring `gh pr view`
+calls, exited 1 every time; `DEFAULT` was empty, `[ "main" = "" ]` was false,
+and the run continued to Step 4's `git push --force-with-lease` on the default
+branch.
 
-**The first `if` is the fix; do not reduce it to an emptiness test (#10).**
-Before it existed the guard could not fire in the one case it exists for: the
-failed lookup left `DEFAULT` empty, `[ "main" = "" ]` was false, and the run
-continued to Step 4's `git push --force-with-lease "$REMOTE" HEAD` —
-force-pushing the default branch with a perfectly satisfied lease. Any failure
-of the lookup, for any reason, must stop the run rather than fall through.
-
-`! DEFAULT=$(...)` is the **exit status**; `[ -z "$DEFAULT" ]` is the string.
-Both are needed, and the status is the load-bearing half. An emptiness test
-alone happens to work for `gh repo view`, which writes its error to stderr and
-leaves stdout empty, but it fails open for a command that prints on failure —
-`gh api`, the tempting alternative here, skips `--jq` on an HTTP error and
-echoes the raw response body to **stdout**, so
-`DEFAULT=$(gh api "repos/$TARGET_REPO" --jq .default_branch)` on a 404 is
-`{"message":"Not Found",...}`: non-empty, never equal to any branch name, and
-straight through. Leaning on what a command happens to leave on stdout when it
-fails is the same class of assumption that made this guard inert.
-
-Write the status check in the `if` rather than as a trailing `|| DEFAULT=""`.
-Both are correct — the `||` form consumes the status exactly the same way — but
-two independent reviewers read the trailing form as *discarding* the status
-(PR #11), and a safety guard that reads as unsafe gets "corrected" back into a
-hole. The explicit form cannot be misread.
+Test the **exit status**, not just the string. `[ -z "$DEFAULT" ]` alone is
+enough only because `gh repo view` writes its error to stderr; a command that
+prints on failure would sail through. `gh api "repos/$TARGET_REPO" --jq
+.default_branch` — the tempting alternative, since `github-target.md` already
+puts a repo in a `gh api` path — is exactly that command: on a 404 it skips
+`--jq` and echoes `{"message":"Not Found",...}` to stdout, which is non-empty
+and equals no branch name. Keep the check in the `if`, not as a trailing
+`|| DEFAULT=""`: both are correct, but two PR #11 reviewers read the trailing
+form as discarding the status, and a guard that reads as unsafe gets
+"corrected" back into a hole.
 
 The default branch should never be force-pushed by this skill. If the
 PR's head IS the default branch (cross-fork PR where the head came from

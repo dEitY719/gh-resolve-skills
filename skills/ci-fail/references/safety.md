@@ -17,16 +17,12 @@ Run as a parallel batch. Any failure → stop with the matching message.
 | Working tree clean | `git status --porcelain` empty | `[FAIL] working tree dirty — commit/stash your edits first; this skill never auto-stashes` |
 | No in-progress rebase / merge / cherry-pick | `git rev-parse --git-path rebase-merge` / `rebase-apply` / `MERGE_HEAD` / `CHERRY_PICK_HEAD` / `REVERT_HEAD` all absent | `[FAIL] in-progress <name> at <marker> — finish or abort first` |
 
-The two default-branch rows are one guard split across two lines, because the
-first is what makes the second trustworthy. `gh repo view` takes the repository
-**positionally** and has no `--repo` flag, so the old `gh repo view --repo
-"$TARGET_REPO"` form exited 1 with `unknown flag: --repo` on every run, left
-`DEFAULT` empty, and `[ "main" = "" ]` waved the default branch through (#10).
-Resolve `DEFAULT` first, refuse on a non-zero exit or an empty value, and only
-then compare. The refusal is specified in full — with the `--worktree` variant
-and the reason the exit status is checked rather than only the string — in
-`gh-resolve:conflict`'s `references/safety.md` → "Never run on the default
-branch", the SSOT for all three skills.
+Order matters: resolve `DEFAULT` first, and treat a non-zero exit or an empty
+value as a refusal in its own right. The repo is **positional** — `gh repo view`
+has no `--repo` flag, and the old `--repo "$TARGET_REPO"` form exited 1 every
+run, leaving `DEFAULT` empty so `[ "main" = "" ]` waved the default branch
+through to the push (#10). Same refusal in `gh-resolve:conflict` and
+`gh-resolve:outdated`; grep `#10` before changing it.
 
 ### Why no auto-stash
 

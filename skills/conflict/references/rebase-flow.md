@@ -20,10 +20,9 @@ Without the flag every command below is read literally, unchanged.
 
 ## Preconditions (parallel batch)
 
-Run all five in a single tool message. Any failure → stop immediately —
-including the `gh repo view` line, whose output is `DEFAULT` for the stop table
-below and whose exit status is checked, never assumed (`safety.md` → "Never run
-on the default branch" is the executable form).
+Run all five in a single tool message. Any failure → stop immediately,
+including the `gh repo view` line: its output is `DEFAULT` for the stop table
+below, and its exit status is checked, never assumed.
 
 ```bash
 git rev-parse --is-inside-work-tree
@@ -75,10 +74,8 @@ HEAD_REF=$(printf '%s' "$REFS" | jq -r .headRefName)
 
 Fall back to `GH_HOST="$TARGET_HOST" gh repo view "$TARGET_REPO" --json
 defaultBranchRef -q .defaultBranchRef.name` only when auto-detecting a PR and
-`gh pr view` returned nothing yet. The repo is **positional** — `gh repo view`
-has no `--repo` flag (#10). Same call as the preconditions batch above and as
-`safety.md` → "Never run on the default branch", which is its SSOT, and the same
-rule applies: a non-zero exit stops the run, because rebasing onto an empty
+`gh pr view` returned nothing yet. The repo is **positional** — no `--repo`
+flag (#10) — and a non-zero exit stops the run, because rebasing onto an empty
 `$BASE` is not a recoverable state.
 
 ## Fetch + rebase
