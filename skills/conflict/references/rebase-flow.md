@@ -141,11 +141,12 @@ GH_HOST="$TARGET_HOST" gh pr view "$PR" --repo "$TARGET_REPO" \
 ## Final report format
 
 ```
-PR #<N> rebased onto <REMOTE>/<BASE>
+[OK] PR #<N> rebased onto <REMOTE>/<BASE>
   Backup SHA:   <sha>          (git reset --hard to undo)
   Pushed:       <new-sha>      (--force-with-lease)
   Mergeable:    <mergeable> / <mergeStateStatus>
   URL:          <pr-url>
+  Next:         /gh-pr:reply <N>  # 리베이스 후 리뷰어 회신
 ```
 
 If a stash was created and popped, append:
@@ -157,7 +158,7 @@ If a stash was created and popped, append:
 If the skill stopped before pushing, use:
 
 ```
-gh-resolve:conflict stopped at <step>
+[FAIL] gh-resolve:conflict stopped at <step>
   Reason:       <short reason>
   Backup SHA:   <sha>
   Resume:       <command the user should run>
