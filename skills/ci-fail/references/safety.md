@@ -46,12 +46,12 @@ and extract the `run:` line from the step that failed. If parsing the
 YAML is too fragile, fall back to the project's conventional commands
 in order:
 
-1. `tox` (if `tox.ini` exists at repo root) — dotfiles convention.
-2. `./tests/test` (if exists) — dotfiles convention.
-3. `pytest` (if `pyproject.toml` has `[tool.pytest]`).
-4. `npm test` / `pnpm test` / `yarn test` (if `package.json` exists).
-5. `ruff check && ruff format --check` (if Python project).
-6. `shellcheck` + `shfmt -d` (if shell-heavy project).
+1. `pytest` (if `pyproject.toml` has `[tool.pytest]`).
+2. `npm test` / `pnpm test` / `yarn test` (if `package.json` has a `test` script).
+3. `ruff check && ruff format --check` (if Python project).
+4. `shellcheck` + `shfmt -d` (if shell-heavy project).
+5. `tox` (if `tox.ini` exists at repo root).
+6. `./tests/test` (if it exists).
 
 If none match, print:
 
@@ -151,10 +151,10 @@ fi
 ```
 
 - `${TOKENS:-3000}` — caller may pre-export an estimate; default 3000.
-- `~2 h` — `fix` lookup from `gh-issue-create/references/metrics-baseline.md`.
+- `~2 h` — `fix` lookup from `gh-issue-skills/skills/create/references/metrics-baseline.md`.
 - soft-fail: comment failure does NOT block the success report.
 - Glyph note: the rendered footer on GitHub uses the standard ai-metrics
-  glyphs (the dEitY719/dotfiles#317 F-2 exception — see `gh-add-ai-metrics`, the footer SSOT).
+  glyphs (the dEitY719/dotfiles#317 F-2 exception — see `gh-setup:add-ai-metrics`, the footer SSOT).
   They are omitted here to keep references/ emoji-free; substitute them at
   render time to match the standard card.
 

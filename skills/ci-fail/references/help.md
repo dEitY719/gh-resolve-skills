@@ -42,42 +42,16 @@
 
 ## What the skill does
 
-1. Parses args. Auto-detects the PR from the current branch if omitted.
-2. Prints a **backup SHA** so `git reset --hard <sha>` can undo edits.
-3. Refuses if working tree is dirty (unrelated edits may be in flight).
-4. Fetches failing required checks via `gh pr checks --required`.
-5. For each failure: dumps `gh run view --log-failed`, identifies cause.
-6. Edits failing files, runs the same lint/test command CI ran.
-7. Local lint/test still red → stops (CI infinite-loop guard).
-8. Commits `fix(ci): <summary> (#<PR_NUMBER>)` and `git push` (no force).
-9. Optionally polls CI green if `--wait <seconds>` was passed.
-10. Removes the `CI fail` label via REST DELETE (last step, soft-fail).
+Steps 1-7 in `SKILL.md`: parse args, fetch failing required checks, fetch +
+analyze logs, fix locally + validate against the same command CI ran, commit
++ push (no force), optionally wait for CI green, then remove the `CI fail`
+label and report.
 
 ## Safety
 
-- **No force-push** — `--force` and `--force-with-lease` both refused.
-  Fast-forward only. Rebased history would require `gh-resolve:conflict`.
-- **Local validation gate** — push only runs after the same lint/test
-  command CI ran exits 0 locally. Stops the "push → CI red → fix → push
-  → CI red" infinite loop.
-- **Label is the LAST mutation** — push must succeed before the label
-  comes off. Premature removal misleads reviewers into re-approving red.
-- **No auto-stash** — working tree must be clean. The user's local
-  edits may be unrelated context the skill shouldn't touch.
-- **No blind retry** — if log analysis can't identify a concrete fix,
-  the skill surfaces the log and stops.
-
-## What this skill will NOT do
-
-- Force-push (`--force` or `--force-with-lease`). Non-negotiable.
-- Run on the repo's default branch.
-- Auto-create the `CI fail` label if missing — soft-fail with a warning.
-- Auto-stash a dirty working tree.
-- Push when local lint/test fails.
-- Delegate the commit step to `gh-pr:commit` — inline commit only, to
-  avoid re-prompts inside a composition.
-- Resolve merge conflicts (that's `/gh-resolve:conflict`).
-- Reply to review comments (that's `/gh-pr:reply` after CI green).
+Full constraint list: [constraints.md](constraints.md) — no force-push ever,
+never on the default branch, push only after the local validation gate is
+green, label removed last (soft-fail), no auto-stash, no blind retry.
 
 ## Related skills
 
