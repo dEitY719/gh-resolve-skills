@@ -12,7 +12,7 @@ Run `lib/normalize-label.sh "<input>"` (path relative to this skill's base
 directory) instead of transcribing the lookup by hand:
 
 ```bash
-CANONICAL=$(bash lib/normalize-label.sh "$LABEL_VARIANT_INPUT")
+CANONICAL=$(lib/normalize-label.sh "$LABEL_VARIANT_INPUT")
 ```
 
 stdout `CI fail` + exit 0 on a match; exit 1 + the fail-fast message
