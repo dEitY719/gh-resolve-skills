@@ -73,7 +73,7 @@ tier 5 중단)의 SSOT 는 [`harness-skills/references/plugin-root.md`](https://
 `$PWD` 단은 없다 — 이 스킬은 리뷰 대상 PR 체크아웃 안에서 돌기 때문에 `$PWD` 는
 호출자가 통제하는 경로이고, 악의적인 PR 이 자기 트리에
 `lib/vendor/shell-common/functions/gh_pr_edit_safe.sh` 를 넣어두면 그대로
-source 된다 (harness-skills#22). `CLAUDE_PLUGIN_ROOT` 가 비어 있으면 경로를
+source 된다 (dEitY719/harness-skills#22). `CLAUDE_PLUGIN_ROOT` 가 비어 있으면 경로를
 만들지 않고 tier 5 로 멈춘다.
 
 `unset -f` → `.` → `command -v` 3단이 증명이다. 두 번째 `[ -f ]` 를 대신하는

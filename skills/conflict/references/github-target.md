@@ -47,7 +47,7 @@ export TARGET_REPO TARGET_HOST
   idiom. **There is no `$PWD` tier.** This skill runs inside the PR checkout
   under review, so `$PWD` is caller-controlled: a hostile PR that adds
   `lib/vendor/shell-common/functions/gh_host.sh` to its own tree would get it
-  sourced here (harness-skills#22). An unset `CLAUDE_PLUGIN_ROOT` stops at
+  sourced here (dEitY719/harness-skills#22). An unset `CLAUDE_PLUGIN_ROOT` stops at
   tier 5 instead of constructing a path.
 - The `unset -f` / `.` / `command -v` sequence is the proof, not a duplicate
   `[ -f ]`: it shows that *this* load, in *this* shell, defined the function —
