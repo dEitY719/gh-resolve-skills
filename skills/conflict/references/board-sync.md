@@ -12,7 +12,7 @@ skill's base directory; requires `TARGET_HOST` already exported as `GH_HOST`
 by Step 1) instead of transcribing the two-tier helper lookup by hand:
 
 ```bash
-bash lib/board-sync.sh "$PR_NUMBER" "$TARGET_REPO"
+lib/board-sync.sh "$PR_NUMBER" "$TARGET_REPO"
 ```
 
 Exit 0 always (soft-fail). Prints `[OK]` on a synced card, `[WARN]` when no
@@ -24,5 +24,5 @@ column are absorbed by the helper itself.
 
 See the script header for the exact two-tier lookup order
 (`SHELL_COMMON`/dotfiles checkout → `CLAUDE_PLUGIN_ROOT` vendor copy) and
-`bash lib/board-sync.sh --self-test` for a fixture check of both tiers plus
+`lib/board-sync.sh --self-test` for a fixture check of both tiers plus
 the partial-source regression, none of which touch the network.

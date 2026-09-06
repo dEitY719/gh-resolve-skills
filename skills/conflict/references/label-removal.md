@@ -10,11 +10,12 @@ Run `lib/remove-conflict-label.sh "$PR_NUMBER" "$TARGET_REPO" "$TARGET_HOST"`
 REST DELETE by hand:
 
 ```bash
-bash lib/remove-conflict-label.sh "$PR_NUMBER" "$TARGET_REPO" "$TARGET_HOST"
+lib/remove-conflict-label.sh "$PR_NUMBER" "$TARGET_REPO" "$TARGET_HOST"
 ```
 
-Exit 0 always (soft-fail); prints `[OK]` on removal, `[WARN]` if the DELETE
-call itself failed. A 404 (label already absent) is absorbed into the `[OK]`
-branch — idempotent for the caller. See the script header for why it uses
+Exit 0 always (soft-fail); prints `[OK]` on removal, `[WARN]` on any DELETE
+failure. `gh api` exits nonzero on any 4xx response, so a 404 (label already
+absent) also prints `[WARN]` rather than `[OK]` — still soft-fail, the caller
+never hard-stops on it either way. See the script header for why it uses
 REST DELETE instead of `gh pr edit --remove-label` (the latter can
 silent-fail on repos with classic Projects attached, dEitY719/dotfiles#326 Bug B).

@@ -13,7 +13,7 @@ relative to this skill's base directory) instead of transcribing the comment
 body by hand:
 
 ```bash
-bash lib/post-ai-metrics.sh "$PR_NUMBER" "$START_TS" "$CONFLICT_FILES"
+lib/post-ai-metrics.sh "$PR_NUMBER" "$START_TS" "$CONFLICT_FILES"
 ```
 
 Skips entirely under `GH_DISABLE_AI_METRICS=1` (issue dEitY719/dotfiles#399). Exit 0

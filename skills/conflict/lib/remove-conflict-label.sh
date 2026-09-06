@@ -8,13 +8,16 @@
 #
 # Uses REST DELETE, not `gh pr edit --remove-label` — the latter can
 # silent-fail on repos with classic Projects attached due to GraphQL
-# deprecation (dEitY719/dotfiles#326 Bug B). A 404 (label already absent) is
-# absorbed as a soft-fail [OK], idempotent for the caller. `gh api` takes no
-# `--repo` flag (dEitY719/dotfiles#658) — repo goes in the path.
-# `GH_HOST="$TARGET_HOST"` pins the server so dual-host logins can't silently
-# hit the wrong one (dEitY719/dotfiles#1403 / #1407).
+# deprecation (dEitY719/dotfiles#326 Bug B). `gh api` exits nonzero on any
+# 4xx response, so a 404 (label already absent) also falls into the `||`
+# branch and prints [WARN], same as a real failure — soft-fail either way
+# (the caller never hard-stops on it), just not silently absorbed as [OK].
+# `gh api` takes no `--repo` flag (dEitY719/dotfiles#658) — repo goes in the
+# path. `GH_HOST="$TARGET_HOST"` pins the server so dual-host logins can't
+# silently hit the wrong one (dEitY719/dotfiles#1403 / #1407).
 #
-# Exit 0 always (soft-fail): prints [OK] on removal/404, [WARN] otherwise.
+# Exit 0 always (soft-fail): prints [OK] on removal, [WARN] on any DELETE
+# failure including a 404.
 set -eu
 
 if [ "${1:-}" = "--self-test" ]; then
