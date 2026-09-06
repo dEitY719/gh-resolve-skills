@@ -33,8 +33,13 @@ GH_HOST="$TARGET_HOST" gh run list --repo "$TARGET_REPO" \
    `Error:` 라인 (또는 첫 non-zero exit 의 step header) 이 일치하는지
    2초 비교.
 
-두 조건 모두 참 → inherited red. SKILL.md Step 2 의 `[STOP]` 메시지로
-종료. 라벨은 떼지 않는다 (CI 가 실제로 PR 회귀 없음을 증명하지 못한 상태).
+두 조건 모두 참 → inherited red. 아래 메시지로 종료 — 라벨은 떼지 않는다
+(CI 가 실제로 PR 회귀 없음을 증명하지 못한 상태):
+
+```
+[STOP] main 자체가 red — 이 PR 만의 회귀가 아니다 (같은 workflow, 같은 step).
+  main 복구를 먼저 진행하거나, GH_PR_RESOLVE_CI_SKIP_MAIN_CHECK=1 로 강제 진행하세요.
+```
 
 #### False-positive — main 의 transient red
 
@@ -81,12 +86,6 @@ If any check is `IN_PROGRESS` or `PENDING` when this skill runs, the
 This is intentional — we'd rather get a fix queued than block on
 flaky CI scheduling.
 
-### Non-required policy
-
-If the user truly wants non-required checks treated as failures, they
-pass them explicitly. v1 of this skill does not expose that switch —
-keep YAGNI until a real ask appears.
-
 ## Step 3 — Log triage
 
 `HEAD_REF` is already bound in SKILL.md Step 1 (from the initial
@@ -117,18 +116,10 @@ take `--repo`, and both are host-pinned with `GH_HOST="$TARGET_HOST"` — never
 rely on cwd-based repo detection (dEitY719/dotfiles#1403 /
 dEitY719/dotfiles#1407, `references/github-target.md`).
 
-### Common failure patterns
-
-Walk the log tail (last ~80 lines is usually enough; full log only if
-the failure is upstream of a cascade):
-
-| Pattern | Signal in log | Fix scope |
-|---|---|---|
-| Lint failure | `error  ...  prefer-const`, `Use \`...\``, ESLint/Ruff/shellcheck output | Edit reported files at reported lines |
-| Type check | `error TS2345`, `mypy: error:`, `Argument of type ...` | Edit reported files, possibly add type annotations |
-| Test failure | `FAIL `, `Test failed:`, `AssertionError`, `expect(...).toBe(...)` | Edit either the test or the implementation — read the assertion first |
-| Build failure | `Cannot find module`, `Module not found`, `npm ERR!`, `bash: ...: command not found` | Often `package.json` / lockfile / env. Investigate before assuming code |
-| Format check | `Code would be reformatted`, `prettier --check failed`, `shfmt -d` | Run formatter locally and re-commit |
+Walk the log tail (last ~80 lines is usually enough; full log only if the
+failure is upstream of a cascade) and read the reported file/line/assertion —
+a current model does not need a lookup table to turn a lint, type-check, test,
+build, or format-check error into a fix location.
 
 ### Heuristic for "no identifiable fix"
 
@@ -145,22 +136,13 @@ push an unrelated commit just to trigger a re-run.
 
 ## Step 6 — `--wait` polling loop
 
-```bash
-WAIT_SECONDS="$1"   # from --wait flag
-ELAPSED=0
-INTERVAL=30
-while [ "$ELAPSED" -lt "$WAIT_SECONDS" ]; do
-    PENDING=$(GH_HOST="$TARGET_HOST" gh pr checks "$PR_NUMBER" --repo "$TARGET_REPO" --required \
-        --json state --jq '[.[] | select(.state=="IN_PROGRESS" or .state=="PENDING" or .state=="FAILURE")] | length')
-    [ "$PENDING" -eq 0 ] && break
-    sleep "$INTERVAL"
-    ELAPSED=$(( ELAPSED + INTERVAL ))
-done
-
-if [ "$PENDING" -gt 0 ]; then
-    echo "[WARN] CI still pending after ${WAIT_SECONDS}s — proceeding to label removal."
-fi
-```
+Run `lib/wait-for-green.sh "$PR_NUMBER" "$WAIT_SECONDS"` (path relative to
+this skill's base directory; requires `TARGET_REPO`/`TARGET_HOST` already
+exported per `references/github-target.md`) instead of transcribing the
+30s-interval poll loop by hand. Exit 0 = green within the timeout; exit 1 =
+still pending/failing, after printing its own `[WARN] CI still pending
+after <N>s — proceeding to label removal.` line — proceed to Step 7 either
+way.
 
 ### Why the warn-and-proceed default
 
