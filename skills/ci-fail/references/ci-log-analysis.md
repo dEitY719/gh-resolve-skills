@@ -139,17 +139,26 @@ push an unrelated commit just to trigger a re-run.
 Run `lib/wait-for-green.sh "$PR_NUMBER" "$WAIT_SECONDS"` (path relative to
 this skill's base directory; requires `TARGET_REPO`/`TARGET_HOST` already
 exported per `references/github-target.md`) instead of transcribing the
-30s-interval poll loop by hand. Exit 0 = green within the timeout; exit 1 =
-still pending/failing, after printing its own `[WARN] CI still pending
-after <N>s — proceeding to label removal.` line — proceed to Step 7 either
-way.
+30s-interval poll loop by hand. Three outcomes:
 
-### Why the warn-and-proceed default
+- exit 0 — green within the timeout. Proceed to Step 7.
+- exit 1 — timeout elapsed with checks still pending, never a confirmed
+  failure. Prints `[WARN] CI still pending after <N>s — proceeding to label
+  removal.` Proceed to Step 7 anyway (warn-and-proceed, below).
+- exit 2 — a required check reached a confirmed bad terminal state
+  (`FAILURE`/`CANCELLED`/`TIMED_OUT`/`ACTION_REQUIRED`/`STARTUP_FAILURE`/
+  `STALE`). Prints `[FAIL] ...` and **stops** — do NOT run Step 7. This is
+  not the race the warn-and-proceed default accepts; CI is conclusively
+  broken, not merely still running (PR #19 review, agy BLOCKER).
+
+### Why the warn-and-proceed default (exit 1 only)
 
 The user opted in to `--wait`, so they accept the race condition that
-the label might come off while CI is still going. The alternative
-(refusing to remove the label on timeout) would defeat the purpose of
-the skill, which is to unblock reviewer re-approval.
+the label might come off while CI is still going (exit 1: unresolved,
+not failed). The alternative (refusing to remove the label on timeout)
+would defeat the purpose of the skill, which is to unblock reviewer
+re-approval. A confirmed failure (exit 2) is a different case entirely —
+there is no race to accept, so it always stops.
 
 If they want strict "only on green", they can omit `--wait` and run
 the skill twice: once to push, once after CI is confirmed green to
