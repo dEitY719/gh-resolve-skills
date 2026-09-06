@@ -67,6 +67,7 @@ if [ ! -f "$_HELPER" ] && [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
 fi
 
 if [ -r "$_HELPER" ]; then
+    # shellcheck source=/dev/null
     . "$_HELPER"
     if ! command -v _gh_project_status_sync >/dev/null 2>&1; then
         printf '[gh-resolve:conflict] %s sourced but _gh_project_status_sync undefined — board sync skipped (dEitY719/dotfiles#724).\n' \
