@@ -8,15 +8,22 @@
 # (references/github-target.md, #1403).
 #
 # Exit 0: every required check reached a known-good state (anything other
-#         than the pending/failed sets below) within the timeout.
-# Exit 1: a required check reached a known-bad terminal state (FAILURE,
+#         than the pending/failed sets below) within the timeout — caller
+#         continues to Step 7.
+# Exit 1: timeout elapsed with checks still IN_PROGRESS/PENDING/QUEUED, never
+#         a definite failure — a genuine race the user accepted by passing
+#         --wait. Prints `[WARN] ... proceeding to label removal.`; caller
+#         proceeds to Step 7 anyway (see "Why the warn-and-proceed default"
+#         in ci-log-analysis.md).
+# Exit 2: a required check reached a known-bad terminal state (FAILURE,
 #         CANCELLED, TIMED_OUT, ACTION_REQUIRED, STARTUP_FAILURE, STALE) —
-#         stops polling immediately rather than waiting out the timeout
-#         (PR #19 review, agy+codex: CANCELLED/TIMED_OUT were previously
-#         silently treated as green) — or the timeout elapsed with checks
-#         still IN_PROGRESS/PENDING/QUEUED. Either way prints a [WARN]
-#         line; caller proceeds to label removal regardless (see "Why the
-#         warn-and-proceed default" in ci-log-analysis.md).
+#         this is not a race, CI is conclusively broken. Stops polling
+#         immediately and prints `[FAIL] ...`; caller must NOT run Step 7 —
+#         removing the label here would misrepresent broken CI as green
+#         (PR #19 review, agy BLOCKER: distinguishing this from exit 1 is
+#         what makes "warn-and-proceed" safe to keep for exit 1 at all;
+#         previously FAILURE/CANCELLED/TIMED_OUT were silently folded into
+#         the same "pending" bucket agy+codex both flagged).
 set -eu
 
 # Splits a `gh pr checks --json state` array (stdin) into two counts:
@@ -66,8 +73,9 @@ while [ "$ELAPSED" -lt "$WAIT_SECONDS" ]; do
 done
 
 if [ "$FAILED" -gt 0 ]; then
-    echo "[WARN] CI has a failed/cancelled required check after ${ELAPSED}s — proceeding to label removal."
-else
-    echo "[WARN] CI still pending after ${WAIT_SECONDS}s — proceeding to label removal."
+    echo "[FAIL] CI has a failed/cancelled required check — this skill will not remove the CI fail label on broken CI. Fix the failure and re-run the skill (not just --wait)."
+    exit 2
 fi
+
+echo "[WARN] CI still pending after ${WAIT_SECONDS}s — proceeding to label removal."
 exit 1

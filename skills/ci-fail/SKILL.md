@@ -73,10 +73,7 @@ yet removed**. Exact commands + divergence message: `references/safety.md` →
 
 ## Step 6: Optional CI Green Wait (`--wait`)
 
-`--wait <seconds>` passed → poll `gh pr checks` (host-pinned, `--repo "$TARGET_REPO"`) every 30 s until green
-or timeout. Timeout → `[WARN] CI still pending after <N>s — proceeding to label
-removal.` Without flag, skip. Polling loop: `references/ci-log-analysis.md` →
-"Step 6 — --wait polling loop".
+`--wait <seconds>` passed → poll `gh pr checks` (host-pinned) every 30 s. Green → continue. Timeout while still pending → `[WARN] CI still pending after <N>s — proceeding to label removal.` A required check confirmed failed/cancelled → `[FAIL]` and **stop — Step 7 does NOT run**. Without the flag, skip. Details: `references/ci-log-analysis.md` → "Step 6 — --wait polling loop".
 
 ## Step 7: Remove `CI fail` Label + Report
 
