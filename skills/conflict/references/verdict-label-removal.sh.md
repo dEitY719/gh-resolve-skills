@@ -38,15 +38,23 @@ classic Projects 보드가 붙은 repo 에서 GraphQL deprecation 때문에 **�
 넘어온다.
 
 ```bash
-_SC="${SHELL_COMMON:-$HOME/dotfiles/shell-common}"
-[ -f "$_SC/functions/gh_pr_edit_safe.sh" ] || _SC="${CLAUDE_PLUGIN_ROOT:-$PWD}/lib/vendor/shell-common"
-[ -f "$_SC/functions/gh_pr_edit_safe.sh" ] || {
-    printf '[gh-resolve:conflict] shell-common not found under %s. On Claude Code this is a broken install; on any other harness export CLAUDE_PLUGIN_ROOT=<plugin dir> first.\n' \
+_SC="${SHELL_COMMON:-$HOME/dotfiles/shell-common}"                                   # tier 1
+if [ ! -f "$_SC/functions/gh_pr_edit_safe.sh" ]; then
+    [ -n "${CLAUDE_PLUGIN_ROOT:-}" ] || {                                            # tier 5
+        printf '[gh-resolve:conflict] no shell-common under %s, and CLAUDE_PLUGIN_ROOT is unset. On Claude Code this is a broken install; on any other harness export CLAUDE_PLUGIN_ROOT=<plugin dir> first.\n' \
+            "$_SC" >&2
+        return 1 2>/dev/null || exit 1
+    }
+    _SC="$CLAUDE_PLUGIN_ROOT/lib/vendor/shell-common"                                # tier 2
+fi
+unset -f _gh_pr_drop_label 2>/dev/null || :
+[ -f "$_SC/functions/gh_pr_edit_safe.sh" ] && . "$_SC/functions/gh_pr_edit_safe.sh"
+command -v _gh_pr_drop_label >/dev/null 2>&1 || {                                    # tier 5
+    printf '[gh-resolve:conflict] %s did not load a usable shell-common. On Claude Code this is a broken install; on any other harness export CLAUDE_PLUGIN_ROOT=<plugin dir> first.\n' \
         "$_SC" >&2
     return 1 2>/dev/null || exit 1
 }
 export SHELL_COMMON="$_SC"
-. "$_SC/functions/gh_pr_edit_safe.sh"
 
 if _vl_err=$(_gh_pr_drop_label "$PR_NUMBER" review-passed \
         "$TARGET_REPO" "$TARGET_HOST" 2>&1); then
@@ -60,11 +68,19 @@ Soft-fail 이다: shell-common 을 못 찾아 위 블록이 non-zero 로 멈추�
 코드 자체가 호출자(Step 5 의 soft-fail 래퍼)가 흡수하는 신호이고, 리베이스
 검증/보고는 그대로 진행한다.
 
-헬퍼 조회 순서(`SHELL_COMMON`/dotfiles → `CLAUDE_PLUGIN_ROOT`/`$PWD` → 중단)의
-SSOT 는 [`harness-skills/references/plugin-root.md`](https://github.com/dEitY719/harness-skills/blob/main/references/plugin-root.md) 다. 두 번째
-`[ -f ]` 는 중복이 아니라 고른 단을 증명하는 단계이고, `export` 는 그 증명
-뒤에 온다 — 빈 값을 이어붙인 `/lib/vendor/...` 를 먼저 export 하던 것이 #8 이
-보여준 결함이다.
+헬퍼 조회 순서(tier 1 `SHELL_COMMON`/dotfiles → tier 2 `CLAUDE_PLUGIN_ROOT` →
+tier 5 중단)의 SSOT 는 [`harness-skills/references/plugin-root.md`](https://github.com/dEitY719/harness-skills/blob/main/references/plugin-root.md) 다.
+`$PWD` 단은 없다 — 이 스킬은 리뷰 대상 PR 체크아웃 안에서 돌기 때문에 `$PWD` 는
+호출자가 통제하는 경로이고, 악의적인 PR 이 자기 트리에
+`lib/vendor/shell-common/functions/gh_pr_edit_safe.sh` 를 넣어두면 그대로
+source 된다 (dEitY719/harness-skills#22). `CLAUDE_PLUGIN_ROOT` 가 비어 있으면 경로를
+만들지 않고 tier 5 로 멈춘다.
+
+`unset -f` → `.` → `command -v` 3단이 증명이다. 두 번째 `[ -f ]` 를 대신하는
+것이 아니라, **이번 로드가 이 셸에서 실제로 함수를 정의했음**을 보인다 — 존재
+검사는 파일이 거기 있다는 것만 말한다. `export` 는 그 증명 뒤에 오며 폴백
+분기 안에는 절대 두지 않는다 — 빈 값을 이어붙인 `/lib/vendor/...` 를 먼저
+export 하던 것이 #8 이 보여준 결함이다.
 
 ## 호스트 고정
 

@@ -9,15 +9,23 @@ the host so every sourced helper inherits it:
 
 ```bash
 REMOTE="${REMOTE:-origin}"
-_SC="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common"
-[ -f "$_SC/functions/gh_host.sh" ] || _SC="${CLAUDE_PLUGIN_ROOT:-$PWD}/lib/vendor/shell-common"
-[ -f "$_SC/functions/gh_host.sh" ] || {
-    printf '[gh-resolve:ci-fail] shell-common not found under %s. On Claude Code this is a broken install; on any other harness export CLAUDE_PLUGIN_ROOT=<plugin dir> first.\n' \
+_SC="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common"                                  # tier 1
+if [ ! -f "$_SC/functions/gh_host.sh" ]; then
+    [ -n "${CLAUDE_PLUGIN_ROOT:-}" ] || {                                            # tier 5
+        printf '[gh-resolve:ci-fail] no shell-common under %s, and CLAUDE_PLUGIN_ROOT is unset. On Claude Code this is a broken install; on any other harness export CLAUDE_PLUGIN_ROOT=<plugin dir> first.\n' \
+            "$_SC" >&2
+        return 1 2>/dev/null || exit 1
+    }
+    _SC="$CLAUDE_PLUGIN_ROOT/lib/vendor/shell-common"                                # tier 2
+fi
+unset -f _gh_resolve_host 2>/dev/null || :
+[ -f "$_SC/functions/gh_host.sh" ] && . "$_SC/functions/gh_host.sh"
+command -v _gh_resolve_host >/dev/null 2>&1 || {                                     # tier 5
+    printf '[gh-resolve:ci-fail] %s did not load a usable shell-common. On Claude Code this is a broken install; on any other harness export CLAUDE_PLUGIN_ROOT=<plugin dir> first.\n' \
         "$_SC" >&2
     return 1 2>/dev/null || exit 1
 }
 export SHELL_COMMON="$_SC"
-. "$_SC/functions/gh_host.sh"
 REMOTE_URL=$(git remote get-url "$REMOTE") || exit 1
 TARGET_REPO=$(_gh_parse_owner_repo_url "$REMOTE_URL") || exit 1
 TARGET_HOST=$(_gh_host_from_url "$REMOTE_URL") || TARGET_HOST=$(_gh_resolve_host)
@@ -33,11 +41,18 @@ export TARGET_REPO TARGET_HOST
   `origin` fallback, which would mask a typo and target the wrong repo.
 - Never continue with an empty `TARGET_HOST` — that is exactly the silent
   misroute state of dEitY719/dotfiles#1403.
-- The `_SC` lookup order (`DOTFILES_ROOT` -> `CLAUDE_PLUGIN_ROOT`/`$PWD` -> stop)
-  is the convention in
+- The `_SC` lookup order (tier 1 `DOTFILES_ROOT` -> tier 2 `CLAUDE_PLUGIN_ROOT`
+  -> tier 5 stop) is the convention in
   [`harness-skills/references/plugin-root.md`](https://github.com/dEitY719/harness-skills/blob/main/references/plugin-root.md) — the SSOT, not a local
-  idiom. The second `[ -f ]` is not a duplicate: the first picks a tier, the
-  second proves it before the `export`.
+  idiom. **There is no `$PWD` tier.** This skill runs inside the PR checkout
+  under review, so `$PWD` is caller-controlled: a hostile PR that adds
+  `lib/vendor/shell-common/functions/gh_host.sh` to its own tree would get it
+  sourced here (dEitY719/harness-skills#22). An unset `CLAUDE_PLUGIN_ROOT` stops at
+  tier 5 instead of constructing a path.
+- The `unset -f` / `.` / `command -v` sequence is the proof, not a duplicate
+  `[ -f ]`: it shows that *this* load, in *this* shell, defined the function —
+  an existence test only says a file is there. The `export` comes after the
+  proof, never inside the fallback branch.
 
 ## Host targeting rule
 
