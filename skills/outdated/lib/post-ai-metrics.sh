@@ -18,18 +18,10 @@
 set -eu
 
 if [ "${1:-}" = "--self-test" ]; then
-    TMP=$(mktemp -d)
-    trap 'rm -rf "$TMP"' EXIT
-    cat > "$TMP/gh" <<'EOF'
-#!/usr/bin/env sh
-echo "unexpected gh call under GH_DISABLE_AI_METRICS=1: $*" >&2
-exit 1
-EOF
-    chmod +x "$TMP/gh"
-
-    OUT=$(GH_DISABLE_AI_METRICS=1 TARGET_REPO=o/r TARGET_HOST=github.com \
-        PATH="$TMP:$PATH" sh "$0" 1 "$(date +%s)")
-    [ -z "$OUT" ] || { echo "FAIL: expected no output and no gh call under GH_DISABLE_AI_METRICS=1, got: $OUT" >&2; exit 1; }
+    # The GH_DISABLE_AI_METRICS check below exits before the `gh api` call is
+    # ever reached, so no stub/fixture for `gh` is needed here.
+    OUT=$(GH_DISABLE_AI_METRICS=1 TARGET_REPO=o/r TARGET_HOST=github.com sh "$0" 1 "$(date +%s)")
+    [ -z "$OUT" ] || { echo "FAIL: expected no output under GH_DISABLE_AI_METRICS=1, got: $OUT" >&2; exit 1; }
 
     echo "[OK] post-ai-metrics.sh --self-test: GH_DISABLE_AI_METRICS=1 skips the gh call"
     exit 0
@@ -46,15 +38,16 @@ fi
 
 ELAPSED=$(( ($(date +%s) - START_TS) / 60 ))
 HUMAN_H=0.5
+TOKENS=${TOKENS:-3000}
 
 GH_HOST="$TARGET_HOST" gh api "repos/$TARGET_REPO/issues/$PR_NUMBER/comments" \
     -X POST \
     -f body="---
 <details>
-<summary>AI Metrics · tokens=~${TOKENS:-3000} · human_h=~$HUMAN_H · ai_min=~$ELAPSED</summary>
+<summary>AI Metrics · tokens=~$TOKENS · human_h=~$HUMAN_H · ai_min=~$ELAPSED</summary>
 
 <!-- ai-metrics:gh-resolve-outdated -->
-AI Metrics tokens=~${TOKENS:-3000} human_h=~$HUMAN_H ai_min=~$ELAPSED
+AI Metrics tokens=~$TOKENS human_h=~$HUMAN_H ai_min=~$ELAPSED
 <!-- /ai-metrics:gh-resolve-outdated -->
 
 </details>
