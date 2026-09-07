@@ -18,12 +18,35 @@
 set -eu
 
 if [ "${1:-}" = "--self-test" ]; then
-    # The GH_DISABLE_AI_METRICS check below exits before the `gh api` call is
-    # ever reached, so no stub/fixture for `gh` is needed here.
-    OUT=$(GH_DISABLE_AI_METRICS=1 TARGET_REPO=o/r TARGET_HOST=github.com sh "$0" 1 "$(date +%s)")
+    # Disabled path: exits 0 with no gh call, even with no other caller var set
+    # (GH_DISABLE_AI_METRICS is checked before the required-arg/env reads).
+    OUT=$(GH_DISABLE_AI_METRICS=1 sh "$0" 1 "$(date +%s)")
     [ -z "$OUT" ] || { echo "FAIL: expected no output under GH_DISABLE_AI_METRICS=1, got: $OUT" >&2; exit 1; }
 
-    echo "[OK] post-ai-metrics.sh --self-test: GH_DISABLE_AI_METRICS=1 skips the gh call"
+    # Enabled path: verify the actual gh invocation via a stub that records
+    # its own env + args instead of hitting the network.
+    TMP=$(mktemp -d)
+    trap 'rm -rf "$TMP"' EXIT
+    cat > "$TMP/gh" <<'EOF'
+#!/usr/bin/env sh
+printf 'GH_HOST=%s ARGS=%s\n' "${GH_HOST:-}" "$*" > "$GH_CALL_LOG"
+EOF
+    chmod +x "$TMP/gh"
+    GH_CALL_LOG="$TMP/call.log"
+    export GH_CALL_LOG
+    PATH="$TMP:$PATH" TARGET_REPO=o/r TARGET_HOST=ghe.example.com \
+        sh "$0" 42 "$(date +%s)" >/dev/null
+    CALL=$(cat "$GH_CALL_LOG")
+    case "$CALL" in
+        "GH_HOST=ghe.example.com ARGS="*"repos/o/r/issues/42/comments"*"-X POST"*) : ;;
+        *) echo "FAIL: unexpected gh invocation: $CALL" >&2; exit 1 ;;
+    esac
+
+    echo "[OK] post-ai-metrics.sh --self-test: disabled path skips gh, enabled path hits the right endpoint/host"
+    exit 0
+fi
+
+if [ "${GH_DISABLE_AI_METRICS:-0}" = "1" ]; then
     exit 0
 fi
 
@@ -31,10 +54,6 @@ PR_NUMBER=${1:?PR number required}
 START_TS=${2:?START_TS required}
 : "${TARGET_REPO:?TARGET_REPO must be exported by Step 1}"
 : "${TARGET_HOST:?TARGET_HOST must be exported by Step 1}"
-
-if [ "${GH_DISABLE_AI_METRICS:-0}" = "1" ]; then
-    exit 0
-fi
 
 ELAPSED=$(( ($(date +%s) - START_TS) / 60 ))
 HUMAN_H=0.5
