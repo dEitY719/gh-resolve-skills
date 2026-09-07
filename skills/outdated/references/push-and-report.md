@@ -36,5 +36,16 @@ invalidate the stale `review-passed` verdict. Record whether the push succeeded.
 Next: /gh-pr:reply <N>  # 리뷰어 회신 또는 CI 결과 대기
 ```
 
-ai-metrics footer follows the sister-skill pattern; skip when
-`GH_DISABLE_AI_METRICS=1` (dEitY719/dotfiles#399).
+Then post the ai-metrics PR comment (soft-fail — warn on error, never block).
+Caller contract: `PR_NUMBER`, `START_TS`, `TARGET_REPO` and `TARGET_HOST` must
+already be exported per Step 1 (`references/github-target.md`,
+dEitY719/dotfiles#1403). Run `lib/post-ai-metrics.sh "$PR_NUMBER" "$START_TS"`
+(path relative to this skill's base directory) instead of transcribing the
+comment body by hand:
+
+```bash
+lib/post-ai-metrics.sh "$PR_NUMBER" "$START_TS"
+```
+
+Skips entirely under `GH_DISABLE_AI_METRICS=1` (dEitY719/dotfiles#399). Exit 0
+always. On failure: `[WARN] ai-metrics comment failed — continuing.`

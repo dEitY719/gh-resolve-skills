@@ -43,7 +43,7 @@ names no branch.
 - The PR is failing CI → use `/gh-resolve:ci-fail`. Out-of-date is
   not the same problem.
 - You want a merge commit on your PR instead of a rebase. This skill
-  refuses — dotfiles policy is rebase-only.
+  refuses — it is rebase-only by design.
 - You are on the repo's default branch. The skill refuses — switch to
   the feature branch first.
 
