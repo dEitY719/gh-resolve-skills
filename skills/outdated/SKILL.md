@@ -68,14 +68,9 @@ Only after `git rebase` exits 0 and the tree is clean:
 git push --force-with-lease "$REMOTE" HEAD
 ```
 
-Never plain `--force`. Rejected (remote advanced while rebasing) →
-`[FAIL] remote advanced — re-fetch and retry` + exit 6. Never silently
-re-fetch — surface divergence so the user decides (lost-update risk).
-`--worktree` mode needs an explicit refspec instead of a bare `HEAD` (a detached
-HEAD names no destination branch): `references/push-and-report.md` → "Push".
-
-A successful push means the reviewed commit is no longer head, so Step 5 must
-invalidate the stale `review-passed` verdict. Record whether the push succeeded.
+Never plain `--force`. `--worktree` mode's refspec, the exit-6 rejected-push
+handling, and why Step 5 must invalidate the stale verdict:
+`references/push-and-report.md` → "Push".
 
 ## Step 5: Verify + Report
 
