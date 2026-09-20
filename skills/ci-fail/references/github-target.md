@@ -23,13 +23,15 @@ if [ ! -f "$_SC/functions/gh_host.sh" ]; then
     _SC="$CLAUDE_PLUGIN_ROOT/lib/vendor/shell-common"                                # tier 2
 fi
 unset -f _gh_resolve_host 2>/dev/null || :
+unalias _gh_resolve_host 2>/dev/null || :
+export SHELL_COMMON="$_SC"                                                           # before the load
 [ -f "$_SC/functions/gh_host.sh" ] && . "$_SC/functions/gh_host.sh"
-command -v _gh_resolve_host >/dev/null 2>&1 || {                                     # tier 5
+[ "$(command -v _gh_resolve_host 2>/dev/null)" = _gh_resolve_host ] || {             # tier 5
+    unset SHELL_COMMON
     printf '[gh-resolve:ci-fail] %s did not load a usable shell-common. On Claude Code this is a broken install; on any other harness export CLAUDE_PLUGIN_ROOT=<plugin dir> first.\n' \
         "$_SC" >&2
     return 1 2>/dev/null || exit 1
 }
-export SHELL_COMMON="$_SC"
 REMOTE_URL=$(git remote get-url "$REMOTE") || exit 1
 TARGET_REPO=$(_gh_parse_owner_repo_url "$REMOTE_URL") || exit 1
 TARGET_HOST=$(_gh_host_from_url "$REMOTE_URL") || TARGET_HOST=$(_gh_resolve_host)
@@ -53,10 +55,30 @@ export TARGET_REPO TARGET_HOST
   `lib/vendor/shell-common/functions/gh_host.sh` to its own tree would get it
   sourced here (dEitY719/harness-skills#22). An unset `CLAUDE_PLUGIN_ROOT` stops at
   tier 5 instead of constructing a path.
-- The `unset -f` / `.` / `command -v` sequence is the proof, not a duplicate
-  `[ -f ]`: it shows that *this* load, in *this* shell, defined the function —
-  an existence test only says a file is there. The `export` comes after the
-  proof, never inside the fallback branch.
+- The `unset -f` / `unalias` / `.` / `command -v` sequence is the proof, not a
+  duplicate `[ -f ]`: it shows that *this* load, in *this* shell, defined the
+  function — an existence test only says a file is there. `unalias` is the
+  other half of the clear: a live alias outranks the function the load just
+  defined in `sh`, `dash` and `zsh` (and in `zsh` stops it being defined at
+  all), turning a good load into a false tier 5.
+- The proof compares `command -v`'s **output** to the bare name; the
+  exit-status form is not enough (dEitY719/harness-skills#36). `command -v`
+  answers "is this name runnable", so a `PATH` executable called
+  `_gh_resolve_host` passes the exit-status test in all four of `sh`, `dash`,
+  `bash` and `zsh`, and an alias passes it in three. POSIX pins the output
+  instead — a function or built-in prints the bare name, an external command
+  its pathname, an alias a reinput-able `alias ...` string — so one `=`
+  separates them without the non-POSIX `type -t` / `declare -F` that `dash`
+  does not have.
+- `export SHELL_COMMON` sits **before** the load and is undone when the proof
+  fails (dEitY719/harness-skills#37). Every vendored helper resolves its own
+  siblings through `${SHELL_COMMON:-$HOME/dotfiles/shell-common}` *at source
+  time*, so exporting afterwards is too late for the only consumer that reads
+  it: on the tier-2 path it looked under a `$HOME/dotfiles` a plugin-only
+  install does not have. The observable contract is unchanged — after this
+  block `SHELL_COMMON` is set if and only if a helper proved out — because the
+  tier-5 arm `unset`s it. Leaving a tree that failed to load exported is the
+  poisoned-export bug of dEitY719/gh-resolve-skills#8.
 
 ## Host targeting rule
 
