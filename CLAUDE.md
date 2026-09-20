@@ -105,6 +105,14 @@ should apply here on the next run, which is the whole point.
   in `references/`. Do not inline a reference file back into `SKILL.md` — all
   three are within a line or two of the limit. When a step grows, move prose
   out; never delete a safety rule to buy lines.
+- **Duplicated reference text is guarded, not trusted.**
+  `references/github-target.md` ships once per skill on purpose: the Step 1
+  binding block is pasted into a bare shell *before* anything has proven
+  `CLAUDE_PLUGIN_ROOT` is set, so it cannot become a sourced helper without
+  breaking the tier-1 `DOTFILES_ROOT` install. `tests/github-target.sh`
+  asserts the three copies stay byte-identical above the
+  `## Why it matters here` boundary; below it each skill says its own piece.
+  CI runs every tracked `tests/*.sh` (dEitY719/gh-resolve-skills#18).
 - **Description budget.** CI sums every skill description and fails past 5,440
   characters — Codex's context budget — with a per-description cap of 1,024.
   Keep new descriptions tight, and keep the "not this, that" disambiguation:

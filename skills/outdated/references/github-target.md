@@ -1,5 +1,9 @@
 # gh-resolve:outdated — GitHub target binding (dEitY719/dotfiles#1403, dEitY719/dotfiles#1407)
 
+> This file exists three times — once per skill — and everything above
+> `## Why it matters here` is one contract, not three. `tests/github-target.sh`
+> fails if the copies drift (dEitY719/gh-resolve-skills#18). Edit all three, or none.
+
 Run this in Step 1, **before any `gh` call**.
 
 ## Bind the target
@@ -99,6 +103,8 @@ against gh CLI's own `gh repo set-default` rather than git's `$REMOTE`. On a
 dual-host login (github.com + a GHES instance) the two can disagree and `gh`
 then hits the wrong server **with no error** — dEitY719/dotfiles#1403 is the case where an OPEN
 issue came back as "not found".
+
+## Why it matters here
 
 A misrouted `gh pr view` here is worse than a bad read: Step 2 triages
 `mergeable`/`mergeStateStatus` from it, so the wrong host can send the skill
