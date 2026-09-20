@@ -1,6 +1,6 @@
 {
   "name": "gh-resolve-skills",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Skills for PR blocked-state recovery — red CI, rebase conflicts, and an out-of-date base",
   "type": "module",
   "main": ".opencode/plugins/gh-resolve.js",

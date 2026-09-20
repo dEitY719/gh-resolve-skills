@@ -1,6 +1,6 @@
 {
   "name": "gh-resolve",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Recover a blocked GitHub PR: red required checks, a branch with conflicts, or a head behind its base.",
   "author": {
     "name": "dEitY719",
