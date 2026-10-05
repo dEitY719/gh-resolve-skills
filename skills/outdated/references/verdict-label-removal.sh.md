@@ -38,35 +38,17 @@ classic Projects 보드가 붙은 repo 에서 GraphQL deprecation 때문에 **�
 넘어온다.
 
 ```bash
-_SC="${SHELL_COMMON:-$HOME/dotfiles/shell-common}"                                   # tier 1
-if [ ! -f "$_SC/functions/gh_pr_edit_safe.sh" ]; then
-    [ -n "${CLAUDE_PLUGIN_ROOT:-}" ] || {                                            # tier 5
-        printf '[gh-resolve:outdated] no shell-common under %s, and CLAUDE_PLUGIN_ROOT is unset. On Claude Code this is a broken install; on any other harness export CLAUDE_PLUGIN_ROOT=<plugin dir> first.\n' \
-            "$_SC" >&2
-        return 1 2>/dev/null || exit 1
-    }
-    _SC="$CLAUDE_PLUGIN_ROOT/lib/vendor/shell-common"                                # tier 2
-fi
-unset -f _gh_pr_drop_label 2>/dev/null || :
-[ -f "$_SC/functions/gh_pr_edit_safe.sh" ] && . "$_SC/functions/gh_pr_edit_safe.sh"
-command -v _gh_pr_drop_label >/dev/null 2>&1 || {                                    # tier 5
-    printf '[gh-resolve:outdated] %s did not load a usable shell-common. On Claude Code this is a broken install; on any other harness export CLAUDE_PLUGIN_ROOT=<plugin dir> first.\n' \
-        "$_SC" >&2
-    return 1 2>/dev/null || exit 1
-}
-export SHELL_COMMON="$_SC"
-
-if _vl_err=$(_gh_pr_drop_label "$PR_NUMBER" review-passed \
-        "$TARGET_REPO" "$TARGET_HOST" 2>&1); then
-    echo "[OK] \`review-passed\` 무효화됨 — force-push 로 head 가 바뀌어 이전 판정은 만료"
-else
-    echo "[WARN] \`review-passed\` 제거 실패 — 리뷰되지 않은 커밋에 판정이 남아 있다: ${_vl_err}"
-fi
+lib/remove-review-passed.sh outdated "$PR_NUMBER" "$TARGET_REPO" "$TARGET_HOST"
 ```
 
+경로는 이 스킬의 base directory 기준이다. `lib/remove-review-passed.sh` 가 아래
+helper 조회 순서, 3단 증명, `[OK]`/`[WARN]` 한 줄 출력을 그대로 구현하고 항상
+exit 0 으로 끝난다 (`--self-test` 로 fixture 검증, 두 스킬 사본은
+`tests/review-passed-lib-sync.sh` 가 byte-identical 로 묶는다).
+
 Soft-fail 이다: 실패해도 Step 5 의 검증/보고는 그대로 진행한다. shell-common 을
-못 찾아 위 블록이 non-zero 로 멈추는 경우도 마찬가지다 — 그 종료 코드 자체가
-호출자가 흡수하는 soft-fail 신호다.
+못 찾은 경우도 마찬가지다 — 스크립트가 tier 5 메시지를 stderr 에 남기고 exit 0
+으로 끝난다.
 
 헬퍼 조회 순서(tier 1 `SHELL_COMMON`/dotfiles → tier 2 `CLAUDE_PLUGIN_ROOT` →
 tier 5 중단)의 SSOT 는 [`harness-skills/references/plugin-root.md`](https://github.com/dEitY719/harness-skills/blob/main/references/plugin-root.md) 다.

@@ -28,6 +28,7 @@ re-fetch — surface divergence so the user decides (lost-update risk).
 
 A successful push means the reviewed commit is no longer head, so Step 5 must
 invalidate the stale `review-passed` verdict. Record whether the push succeeded.
+Rationale and the helper contract: `references/verdict-label-removal.sh.md`.
 
 ## Report
 

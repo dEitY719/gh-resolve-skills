@@ -76,8 +76,8 @@ handling, and why Step 5 must invalidate the stale verdict:
 
 Re-read `--json mergeable,mergeStateStatus,url` and interpret per
 `references/mergeable-triage.md` → "Step 5 verification". Only if Step 4's push
-actually succeeded, drop the `review-passed` label per
-`references/verdict-label-removal.sh.md` (soft-fail). Never touch
+actually succeeded, run
+`lib/remove-review-passed.sh outdated "$PR_NUMBER" "$TARGET_REPO" "$TARGET_HOST"` (soft-fail, always exit 0). Never touch
 `review-blocked` — this skill holds no evidence the blockers were addressed —
 and never *add* either label; `gh-verify:review-all` owns that (dEitY719/dotfiles#1563).
 

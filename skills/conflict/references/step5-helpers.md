@@ -10,7 +10,10 @@ The first three apply only when `mergeable == MERGEABLE`.
 - Remove the `conflict` label per `references/label-removal.md`.
 - Return the board status to `In review` per `references/board-sync.md`.
 - Post the ai-metrics PR comment per `references/ai-metrics-comment.md` (soft-fail; skip when `GH_DISABLE_AI_METRICS=1`).
-- Drop the `review-passed` label per `references/verdict-label-removal.sh.md`.
+- Drop the `review-passed` label: run
+  `lib/remove-review-passed.sh conflict "$PR_NUMBER" "$TARGET_REPO" "$TARGET_HOST"`
+  (path relative to this skill's base directory; soft-fail, always exit 0;
+  rationale in `references/verdict-label-removal.sh.md`).
   **Different gate**: this one keys off Step 4's push, not `mergeable` — a
   force-push replaced the reviewed commit, so the stale verdict must go even
   if the PR still reads `CONFLICTING`. Skip it entirely when the push was
