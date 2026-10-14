@@ -113,6 +113,11 @@ should apply here on the next run, which is the whole point.
   asserts the three copies stay byte-identical above the
   `## Why it matters here` boundary; below it each skill says its own piece.
   CI runs every tracked `tests/*.sh` (dEitY719/gh-resolve-skills#18).
+- **Behaviour tests live in `tests/bats/`** (`.github/workflows/bats.yml`,
+  moved from dotfiles by dEitY719/dotfiles#2200). They run the shipped
+  `skills/*/lib/*.sh` and fence-extracted `references/` blocks against a PATH
+  `gh` stub. Run locally:
+  `BATS_LIB_PATH=<path with bats-support,bats-assert> bats -r tests/bats`.
 - **Description budget.** CI sums every skill description and fails past 5,440
   characters — Codex's context budget — with a per-description cap of 1,024.
   Keep new descriptions tight, and keep the "not this, that" disambiguation:
