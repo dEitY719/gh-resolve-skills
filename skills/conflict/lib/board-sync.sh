@@ -11,8 +11,8 @@
 # inherits it for its own `gh` calls.
 #
 # Helper lookup, two tiers (dEitY719/dotfiles#724, PR #8 review):
-#   1. ${SHELL_COMMON:-$HOME/dotfiles/shell-common}/functions/gh_project_status.sh
-#   2. ${CLAUDE_PLUGIN_ROOT}/lib/vendor/shell-common/functions/gh_project_status.sh
+#   1. ${SHELL_COMMON:-$HOME/dotfiles/shell-common}/lib/gh_project_status.sh
+#   2. ${CLAUDE_PLUGIN_ROOT}/lib/vendor/shell-common/lib/gh_project_status.sh
 #      (only when CLAUDE_PLUGIN_ROOT is non-empty — Claude-Code-only var;
 #      other harnesses must export it themselves to reach the vendor copy)
 # Neither resolves, or the file sourced but `_gh_project_status_sync` is
@@ -33,8 +33,8 @@ if [ "${1:-}" = "--self-test" ]; then
     esac
 
     # Case 2: tier-2 vendor copy present and functional -> [OK].
-    mkdir -p "$TMP/plugin/lib/vendor/shell-common/functions"
-    cat > "$TMP/plugin/lib/vendor/shell-common/functions/gh_project_status.sh" <<'EOF'
+    mkdir -p "$TMP/plugin/lib/vendor/shell-common/lib"
+    cat > "$TMP/plugin/lib/vendor/shell-common/lib/gh_project_status.sh" <<'EOF'
 _gh_project_status_sync() { return 0; }
 EOF
     OUT=$(HOME="$TMP/empty" SHELL_COMMON='' CLAUDE_PLUGIN_ROOT="$TMP/plugin" sh "$0" 1 owner/repo)
@@ -44,7 +44,7 @@ EOF
     esac
 
     # Case 3: helper sourced but function undefined (partial-source regression) -> [WARN].
-    cat > "$TMP/plugin/lib/vendor/shell-common/functions/gh_project_status.sh" <<'EOF'
+    cat > "$TMP/plugin/lib/vendor/shell-common/lib/gh_project_status.sh" <<'EOF'
 # intentionally does not define _gh_project_status_sync
 EOF
     OUT=$(HOME="$TMP/empty" SHELL_COMMON='' CLAUDE_PLUGIN_ROOT="$TMP/plugin" sh "$0" 1 owner/repo 2>/dev/null)
@@ -60,9 +60,9 @@ fi
 PR_NUMBER=${1:?PR number required}
 TARGET_REPO=${2:?TARGET_REPO required}
 
-_HELPER="${SHELL_COMMON:-$HOME/dotfiles/shell-common}/functions/gh_project_status.sh"
+_HELPER="${SHELL_COMMON:-$HOME/dotfiles/shell-common}/lib/gh_project_status.sh"
 if [ ! -f "$_HELPER" ] && [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
-    _HELPER="$CLAUDE_PLUGIN_ROOT/lib/vendor/shell-common/functions/gh_project_status.sh"
+    _HELPER="$CLAUDE_PLUGIN_ROOT/lib/vendor/shell-common/lib/gh_project_status.sh"
     export SHELL_COMMON="$CLAUDE_PLUGIN_ROOT/lib/vendor/shell-common"
 fi
 

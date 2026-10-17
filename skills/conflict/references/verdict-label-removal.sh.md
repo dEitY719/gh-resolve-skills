@@ -5,8 +5,8 @@ Step 4 의 `git push --force-with-lease` 가 **성공했을 때만** 실행한�
 판정도 그대로 유효하다 — 아무것도 하지 않는다.
 
 규칙의 SSOT 는 `dEitY719/dotfiles` 의
-`shell-common/functions/gh_pr_edit_safe.sh`(이 repo 의 벤더 사본은
-`lib/vendor/shell-common/functions/gh_pr_edit_safe.sh`) 헤더의
+`shell-common/lib/gh_pr_edit_safe.sh`(이 repo 의 벤더 사본은
+`lib/vendor/shell-common/lib/gh_pr_edit_safe.sh`) 헤더의
 "Verdict-label invalidation — SSOT for issue #1563" 절이다. 요약: 두 판정
 라벨은 **특정 head 커밋 하나**에 대한 주장이라, 리베이스 force-push 는 리뷰된
 커밋을 통째로 갈아치우므로 `review-passed` 를 거짓으로 만든다. 실제로 PR dEitY719/dotfiles#1529
@@ -53,7 +53,7 @@ Soft-fail 이다: shell-common 을 못 찾더라도 스크립트는 tier 5 메�
 tier 5 중단)의 SSOT 는 [`harness-skills/references/plugin-root.md`](https://github.com/dEitY719/harness-skills/blob/main/references/plugin-root.md) 다.
 `$PWD` 단은 없다 — 이 스킬은 리뷰 대상 PR 체크아웃 안에서 돌기 때문에 `$PWD` 는
 호출자가 통제하는 경로이고, 악의적인 PR 이 자기 트리에
-`lib/vendor/shell-common/functions/gh_pr_edit_safe.sh` 를 넣어두면 그대로
+`lib/vendor/shell-common/lib/gh_pr_edit_safe.sh` 를 넣어두면 그대로
 source 된다 (dEitY719/harness-skills#22). `CLAUDE_PLUGIN_ROOT` 가 비어 있으면 경로를
 만들지 않고 tier 5 로 멈춘다.
 

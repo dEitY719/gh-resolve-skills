@@ -14,7 +14,7 @@
 #   mirror with the shipped block and un-skip the drift test in the .bats.
 
 # shellcheck source=/dev/null
-. "$REPO_ROOT/lib/vendor/shell-common/functions/gh_pr_edit_safe.sh"
+. "$REPO_ROOT/lib/vendor/shell-common/lib/gh_pr_edit_safe.sh"
 
 _CI_FAIL_SAFETY_MD="$REPO_ROOT/skills/ci-fail/references/safety.md"
 _CI_FAIL_STEP7_BLOCK=$(awk '
