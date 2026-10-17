@@ -66,7 +66,7 @@ TARGET_HOST="${4:-}"
 # tier 5 stop. No $PWD tier: this runs inside the PR checkout under review
 # (dEitY719/harness-skills#22).
 _SC="${SHELL_COMMON:-$HOME/dotfiles/shell-common}"                                   # tier 1
-if [ ! -f "$_SC/functions/gh_pr_edit_safe.sh" ]; then
+if [ ! -f "$_SC/lib/gh_pr_edit_safe.sh" ]; then
     [ -n "${CLAUDE_PLUGIN_ROOT:-}" ] || {                                            # tier 5
         printf '[gh-resolve:%s] no shell-common under %s, and CLAUDE_PLUGIN_ROOT is unset. On Claude Code this is a broken install; on any other harness export CLAUDE_PLUGIN_ROOT=<plugin dir> first.\n' \
             "$SKILL" "$_SC" >&2
@@ -76,7 +76,7 @@ if [ ! -f "$_SC/functions/gh_pr_edit_safe.sh" ]; then
 fi
 unset -f _gh_pr_drop_label 2>/dev/null || :
 # shellcheck source=/dev/null
-[ -f "$_SC/functions/gh_pr_edit_safe.sh" ] && . "$_SC/functions/gh_pr_edit_safe.sh"
+[ -f "$_SC/lib/gh_pr_edit_safe.sh" ] && . "$_SC/lib/gh_pr_edit_safe.sh"
 command -v _gh_pr_drop_label >/dev/null 2>&1 || {                                    # tier 5
     printf '[gh-resolve:%s] %s did not load a usable shell-common. On Claude Code this is a broken install; on any other harness export CLAUDE_PLUGIN_ROOT=<plugin dir> first.\n' \
         "$SKILL" "$_SC" >&2

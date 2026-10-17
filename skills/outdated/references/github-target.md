@@ -14,7 +14,7 @@ the host so every sourced helper inherits it:
 ```bash
 REMOTE="${REMOTE:-origin}"
 _SC="${DOTFILES_ROOT:-$HOME/dotfiles}/shell-common"                                  # tier 1
-if [ ! -f "$_SC/functions/gh_host.sh" ]; then
+if [ ! -f "$_SC/lib/gh_host.sh" ]; then
     [ -n "${CLAUDE_PLUGIN_ROOT:-}" ] || {                                            # tier 5
         printf '[gh-resolve:outdated] no shell-common under %s, and CLAUDE_PLUGIN_ROOT is unset. On Claude Code this is a broken install; on any other harness export CLAUDE_PLUGIN_ROOT=<plugin dir> first.\n' \
             "$_SC" >&2
@@ -25,7 +25,7 @@ fi
 unset -f _gh_resolve_host 2>/dev/null || :
 unalias _gh_resolve_host 2>/dev/null || :
 export SHELL_COMMON="$_SC"                                                           # before the load
-[ -f "$_SC/functions/gh_host.sh" ] && . "$_SC/functions/gh_host.sh"
+[ -f "$_SC/lib/gh_host.sh" ] && . "$_SC/lib/gh_host.sh"
 [ "$(command -v _gh_resolve_host 2>/dev/null)" = _gh_resolve_host ] || {             # tier 5
     unset SHELL_COMMON
     printf '[gh-resolve:outdated] %s did not load a usable shell-common. On Claude Code this is a broken install; on any other harness export CLAUDE_PLUGIN_ROOT=<plugin dir> first.\n' \
@@ -52,7 +52,7 @@ export TARGET_REPO TARGET_HOST
   [`harness-skills/references/plugin-root.md`](https://github.com/dEitY719/harness-skills/blob/main/references/plugin-root.md) — the SSOT, not a local
   idiom. **There is no `$PWD` tier.** This skill runs inside the PR checkout
   under review, so `$PWD` is caller-controlled: a hostile PR that adds
-  `lib/vendor/shell-common/functions/gh_host.sh` to its own tree would get it
+  `lib/vendor/shell-common/lib/gh_host.sh` to its own tree would get it
   sourced here (dEitY719/harness-skills#22). An unset `CLAUDE_PLUGIN_ROOT` stops at
   tier 5 instead of constructing a path.
 - The `unset -f` / `unalias` / `.` / `command -v` sequence is the proof, not a

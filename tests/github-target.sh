@@ -108,8 +108,8 @@ grep -q '^export TARGET_REPO TARGET_HOST$' "$TMP/block.sh" \
     || fail "the extracted block is truncated: it does not reach 'export TARGET_REPO TARGET_HOST'"
 
 EMPTY_ROOT="$TMP/empty-root"
-mkdir -p "$EMPTY_ROOT/lib/vendor/shell-common/functions"
-: > "$EMPTY_ROOT/lib/vendor/shell-common/functions/gh_host.sh"
+mkdir -p "$EMPTY_ROOT/lib/vendor/shell-common/lib"
+: > "$EMPTY_ROOT/lib/vendor/shell-common/lib/gh_host.sh"
 mkdir -p "$TMP/fakebin"
 printf '#!/bin/sh\n:\n' > "$TMP/fakebin/_gh_resolve_host"
 chmod +x "$TMP/fakebin/_gh_resolve_host"

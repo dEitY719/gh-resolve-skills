@@ -102,7 +102,7 @@ teardown() {
 
 @test "doc-guard: the vendored #1563 SSOT lists gh:pr-resolve-ci-fail as a consumer" {
     run grep -qE 'gh:pr-resolve-ci-fail +Step 5' \
-        "$REPO_ROOT/lib/vendor/shell-common/functions/gh_pr_edit_safe.sh"
+        "$REPO_ROOT/lib/vendor/shell-common/lib/gh_pr_edit_safe.sh"
     assert_success
 }
 
