@@ -6,15 +6,9 @@
 #   skills/ci-fail/references/safety.md -> "## Step 7 label removal", first
 #   ```bash block. The test runs the shipped text, not a copy.
 #
-# Step 5 `review-passed` drop: SPEC MIRROR, no canonical yet. dotfiles added
-#   it in dEitY719/dotfiles#1705 (timing fixed by #1711: drop right after the
-#   push, before Step 6 `--wait`), but the shipped skill never got it —
-#   dEitY719/gh-resolve-skills#32. It calls the vendored `_gh_pr_drop_label`
-#   primitive, so only the call site is mirrored. When #32 lands, replace the
-#   mirror with the shipped block and un-skip the drift test in the .bats.
-
-# shellcheck source=/dev/null
-. "$REPO_ROOT/lib/vendor/shell-common/lib/gh_pr_edit_safe.sh"
+# Step 5 `review-passed` drop: runs the shipped
+#   skills/ci-fail/lib/remove-review-passed.sh (dEitY719/gh-resolve-skills#32;
+#   dotfiles #1705, timing #1711: right after the push, before Step 6 `--wait`).
 
 _CI_FAIL_SAFETY_MD="$REPO_ROOT/skills/ci-fail/references/safety.md"
 _CI_FAIL_STEP7_BLOCK=$(awk '
@@ -26,12 +20,7 @@ _CI_FAIL_STEP7_BLOCK=$(awk '
 
 # Usage: resolve_ci_fail_step5_drop_review_passed <pr> <repo> <host>
 resolve_ci_fail_step5_drop_review_passed() {
-    # shellcheck disable=SC2016  # backticks are markdown in the message
-    _gh_pr_drop_label "$1" review-passed "$2" "${3-}" \
-        >/dev/null 2>&1 \
-      && printf '[OK] `review-passed` 라벨 제거됨 — CI 수정 커밋으로 head 가 바뀌어 이전 판정 무효화\n' \
-      || printf '[WARN] `review-passed` 라벨 제거 실패 (권한/네트워크 — 수동 확인 필요할 수 있음)\n'
-    return 0
+    bash "$REPO_ROOT/skills/ci-fail/lib/remove-review-passed.sh" ci-fail "$@"
 }
 
 # Step 7 — runs the shipped safety.md block, then SKILL.md's report line.

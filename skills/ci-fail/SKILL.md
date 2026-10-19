@@ -69,7 +69,9 @@ Inline commit (do NOT delegate to `gh-pr:commit` — composition re-prompt). Tit
 `fix(ci): <summary> (#<PR_NUMBER>)`. Fast-forward push only — **no `--force`, no
 `--force-with-lease`**. Rejected → surface divergence and stop; **label is NOT
 yet removed**. Exact commands + divergence message: `references/safety.md` →
-"Step 5 push".
+"Step 5 push". Push succeeded → drop the stale verdict before Step 6:
+`lib/remove-review-passed.sh ci-fail "$PR_NUMBER" "$TARGET_REPO" "$TARGET_HOST"`
+(soft-fail, exit 0). Never touch `review-blocked`: `references/safety.md` → "Step 5 review-passed drop".
 
 ## Step 6: Optional CI Green Wait (`--wait`)
 
