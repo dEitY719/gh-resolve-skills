@@ -3,7 +3,7 @@
 # Shared `gh` stub for the three `review-passed` suites
 # (gh_pr_resolve_{ci_fail,conflict,outdated}_review_passed.bats). Installed as
 # a real executable on PATH, so it also reaches `gh` calls made by the shipped
-# skills/{conflict,outdated}/lib/remove-review-passed.sh in a child bash.
+# skills/{ci-fail,conflict,outdated}/lib/remove-review-passed.sh in a child bash.
 #
 # Every call is appended to $GH_LOG as `gh <args> [GH_HOST=<host>]`.
 # STUB_MODE picks the label API's behaviour:
