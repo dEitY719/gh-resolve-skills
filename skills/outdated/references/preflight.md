@@ -46,7 +46,7 @@ fi
 `DEFAULT` empty, so `[ "main" = "" ]` waved the one branch this skill must
 never `--force-with-lease` straight through. Same refusal in
 `gh-resolve:conflict` and `gh-resolve:ci-fail`; search them for `#10` through
-Bash (`git grep -n '#10' skills/`) before changing it.
+Bash (`git grep -nw '#10' skills/`) before changing it.
 In `--worktree` mode compare the PR's `headRefName` instead of `CURRENT` — the
 lookup and its refusal are unchanged.
 
