@@ -34,10 +34,10 @@ EOF
     chmod +x "$TMP/gh"
     _vendor="$(dirname -- "$_self")/../../../lib/vendor/shell-common"
 
-    _run() { # <case> <expected prefix> ; env MOCK_* set by caller
+    _run() { # <case> <expected prefix> [skill] ; env MOCK_* set by caller
         : > "$TMP/log"
         OUT=$(MOCK_GH_LOG="$TMP/log" SHELL_COMMON="$_vendor" PATH="$TMP:$PATH" \
-            bash "$_self" outdated 1 owner/repo github.com 2>/dev/null)
+            bash "$_self" "${3:-outdated}" 1 owner/repo github.com 2>/dev/null)
         RC=$?
         case "$OUT" in
             "$2"*) ;;
@@ -51,10 +51,11 @@ EOF
     }
 
     MOCK_DELETE_RC=0 _run "label present" "[OK]"
+    MOCK_DELETE_RC=0 _run "ci-fail wording" "[OK] \`review-passed\` 라벨 제거됨" ci-fail
     MOCK_DELETE_RC=1 MOCK_GET_RC=0 MOCK_LABELS=bug _run "label absent" "[OK]"
     MOCK_DELETE_RC=1 MOCK_GET_RC=1 _run "gh failure" "[WARN]"
 
-    echo "[OK] remove-review-passed.sh --self-test: present/absent/failure branches print correctly"
+    echo "[OK] remove-review-passed.sh --self-test: present/absent/failure/ci-fail branches print correctly"
     exit 0
 fi
 
@@ -93,6 +94,7 @@ if _vl_err=$(_gh_pr_drop_label "$PR_NUMBER" review-passed \
         echo "[OK] \`review-passed\` 무효화됨 — force-push 로 head 가 바뀌어 이전 판정은 만료"
     fi
 else
-    echo "[WARN] \`review-passed\` 제거 실패 — 리뷰되지 않은 커밋에 판정이 남아 있다: ${_vl_err}"
+    # One result line even when gh's error spans several lines.
+    echo "[WARN] \`review-passed\` 제거 실패 — 리뷰되지 않은 커밋에 판정이 남아 있다: $(printf '%s' "$_vl_err" | tr '\n' ' ')"
 fi
 exit 0
