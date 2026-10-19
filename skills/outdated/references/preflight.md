@@ -45,8 +45,8 @@ fi
 `gh repo view` has no `--repo` flag; passing one exits 1 and used to leave
 `DEFAULT` empty, so `[ "main" = "" ]` waved the one branch this skill must
 never `--force-with-lease` straight through. Same refusal in
-`gh-resolve:conflict` and `gh-resolve:ci-fail`; search them for `#10` through
-Bash (`git grep -nw '#10' skills/`) before changing it.
+`gh-resolve:conflict` and `gh-resolve:ci-fail`; before changing it, search a
+gh-resolve-skills checkout through Bash: `git grep -nE '#10([^0-9]|$)' skills/`.
 In `--worktree` mode compare the PR's `headRefName` instead of `CURRENT` — the
 lookup and its refusal are unchanged.
 

@@ -23,7 +23,8 @@ value as a refusal in its own right. The repo is **positional** — `gh repo vie
 has no `--repo` flag, and the old `--repo "$TARGET_REPO"` form exited 1 every
 run, leaving `DEFAULT` empty so `[ "main" = "" ]` waved the default branch
 through to the push (#10). Same refusal in `gh-resolve:conflict` and
-`gh-resolve:outdated`; grep `#10` before changing it.
+`gh-resolve:outdated`; before changing it, search a gh-resolve-skills checkout
+through Bash: `git grep -nE '#10([^0-9]|$)' skills/`.
 
 ### Why no auto-stash
 
