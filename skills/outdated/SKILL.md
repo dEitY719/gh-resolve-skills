@@ -6,7 +6,7 @@ description: >-
   "base 변경됐는데 sync". Conflicts → gh-resolve:conflict; CI red →
   gh-resolve:ci-fail.
 license: MIT
-allowed-tools: Bash, Read
+allowed-tools: Bash, Read, Grep
 metadata:
   model_recommendation:
     tier: sonnet
