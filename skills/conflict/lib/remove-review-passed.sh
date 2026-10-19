@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
-# gh-resolve:{conflict,outdated} — Step 5: drop the stale `review-passed`
-# label after a SUCCESSFUL `git push --force-with-lease`. The caller gates on
-# the push; this script does not re-check it. Rationale (dEitY719/dotfiles#1563,
-# #1529): references/verdict-label-removal.sh.md of the calling skill.
+# gh-resolve:{ci-fail,conflict,outdated} — Step 5: drop the stale `review-passed`
+# label after a SUCCESSFUL push (`--force-with-lease` for conflict/outdated, a
+# fast-forward for ci-fail). The caller gates on the push; this script does not
+# re-check it. Rationale (dEitY719/dotfiles#1563, #1529, #1705): the calling
+# skill's references (verdict-label-removal.sh.md, or ci-fail's safety.md).
 #
-# Usage: remove-review-passed.sh <conflict|outdated> "$PR_NUMBER" "$TARGET_REPO" "$TARGET_HOST"
+# Usage: remove-review-passed.sh <ci-fail|conflict|outdated> "$PR_NUMBER" "$TARGET_REPO" "$TARGET_HOST"
 #        remove-review-passed.sh --self-test   (fixture check, no real `gh`)
 #
-# Byte-identical copies live in skills/conflict/lib/ and skills/outdated/lib/;
+# Byte-identical copies live in skills/{ci-fail,conflict,outdated}/lib/;
 # tests/review-passed-lib-sync.sh fails the build when they drift.
 #
 # Only ever removes `review-passed`. Never touches `review-blocked`, never
@@ -86,7 +87,11 @@ export SHELL_COMMON="$_SC"
 
 if _vl_err=$(_gh_pr_drop_label "$PR_NUMBER" review-passed \
         "$TARGET_REPO" "$TARGET_HOST" 2>&1); then
-    echo "[OK] \`review-passed\` 무효화됨 — force-push 로 head 가 바뀌어 이전 판정은 만료"
+    if [ "$SKILL" = ci-fail ]; then
+        echo "[OK] \`review-passed\` 라벨 제거됨 — CI 수정 커밋으로 head 가 바뀌어 이전 판정 무효화"
+    else
+        echo "[OK] \`review-passed\` 무효화됨 — force-push 로 head 가 바뀌어 이전 판정은 만료"
+    fi
 else
     echo "[WARN] \`review-passed\` 제거 실패 — 리뷰되지 않은 커밋에 판정이 남아 있다: ${_vl_err}"
 fi

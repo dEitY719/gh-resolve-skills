@@ -106,6 +106,29 @@ Backup of pre-Step-4 HEAD: $BACKUP_SHA
 The label is NOT removed. Reviewers should still see CI red until the
 push lands.
 
+## Step 5 review-passed drop
+
+Runs only after the Step 5 push **succeeded**, and before Step 6 `--wait`
+(dEitY719/dotfiles#1705, timing #1711). `review-passed` vouches for one head
+commit; the CI-fix commit is a new head nobody reviewed, so the verdict is
+stale the moment the push lands. A rejected push leaves the head unchanged:
+skip this block.
+
+```bash
+lib/remove-review-passed.sh ci-fail "$PR_NUMBER" "$TARGET_REPO" "$TARGET_HOST"
+```
+
+The path is relative to this skill's base directory. The script calls the
+vendored `_gh_pr_drop_label` (SSOT: `lib/vendor/shell-common/lib/gh_pr_edit_safe.sh`,
+"Verdict-label invalidation"), absorbs a 404 as `[OK]`, prints one
+`[OK]`/`[WARN]` line, and always exits 0 — a failure never stops Steps 6-7.
+It is byte-identical to the conflict/outdated copies
+(`tests/review-passed-lib-sync.sh`).
+
+Never touch `review-blocked`, and never add either verdict label: this skill
+has no evidence the reviewer's blockers were addressed, and
+`gh-verify:review-all` is the only issuer (dEitY719/dotfiles#1563).
+
 ## Step 7 label removal + ai-metrics
 
 The label-removal block uses REST DELETE (not `gh pr edit

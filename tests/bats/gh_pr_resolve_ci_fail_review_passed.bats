@@ -3,8 +3,8 @@
 # ci-fail drops a stale `review-passed` right after the Step 5 push (dotfiles
 # #1705, timing #1711), then removes `CI fail` in Step 7.
 # Fixture: fixtures/gh_pr_resolve_ci_fail_review_passed.sh. Step 7 runs the
-# shipped skills/ci-fail/references/safety.md block; the Step 5 drop is a spec
-# mirror until dEitY719/gh-resolve-skills#32 ships it (see the fixture).
+# shipped skills/ci-fail/references/safety.md block; the Step 5 drop runs the
+# shipped skills/ci-fail/lib/remove-review-passed.sh (dEitY719/gh-resolve-skills#32).
 #
 # Smaller than the rebase skills' suites: a CI fix changes file content by
 # definition, so there is no keep path, only an unconditional drop. The
@@ -96,7 +96,7 @@ teardown() {
     export STUB_MODE
     run resolve_ci_fail_step5_through_7 99 acme/widget github.com
     assert_success
-    assert_output --partial '[WARN] `review-passed` 라벨 제거 실패'
+    assert_output --partial '[WARN] `review-passed` 제거 실패'
     assert_output --partial '[OK] PR #99 CI 복구 완료'
 }
 
@@ -107,7 +107,9 @@ teardown() {
 }
 
 @test "drift: the shipped ci-fail skill drops review-passed in Step 5" {
-    skip "canonical gap: the shipped skill has no review-passed drop yet (dEitY719/gh-resolve-skills#32)"
-    run grep -q 'review-passed' "$REPO_ROOT/skills/ci-fail/SKILL.md" "$REPO_ROOT/skills/ci-fail/references/safety.md"
+    local _call='lib/remove-review-passed.sh ci-fail "$PR_NUMBER" "$TARGET_REPO" "$TARGET_HOST"'
+    run grep -qF "$_call" "$REPO_ROOT/skills/ci-fail/SKILL.md"
+    assert_success
+    run grep -qF "$_call" "$REPO_ROOT/skills/ci-fail/references/safety.md"
     assert_success
 }
