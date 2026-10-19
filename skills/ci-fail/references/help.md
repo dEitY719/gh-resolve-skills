@@ -44,8 +44,8 @@
 
 Steps 1-7 in `SKILL.md`: parse args, fetch failing required checks, fetch +
 analyze logs, fix locally + validate against the same command CI ran, commit
-+ push (no force), optionally wait for CI green, then remove the `CI fail`
-label and report.
++ push (no force), drop the now-stale `review-passed` label, optionally wait
+for CI green, then remove the `CI fail` label and report.
 
 ## Safety
 

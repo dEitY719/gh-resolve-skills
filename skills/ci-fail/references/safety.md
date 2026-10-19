@@ -111,8 +111,9 @@ push lands.
 Runs only after the Step 5 push **succeeded**, and before Step 6 `--wait`
 (dEitY719/dotfiles#1705, timing #1711). `review-passed` vouches for one head
 commit; the CI-fix commit is a new head nobody reviewed, so the verdict is
-stale the moment the push lands. A rejected push leaves the head unchanged:
-skip this block.
+stale the moment the push lands. A rejected push, or one that advanced
+nothing (`git rev-parse HEAD` still equals `$BACKUP_SHA`), leaves the head
+unchanged: skip this block.
 
 ```bash
 lib/remove-review-passed.sh ci-fail "$PR_NUMBER" "$TARGET_REPO" "$TARGET_HOST"
